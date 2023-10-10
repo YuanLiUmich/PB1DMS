@@ -1,0 +1,475 @@
+﻿PDB,State,PB1.chain,RNA.chain,PB1.residues,wt,type,RNA.type
+4wsb,template binding 1,B,R,671,Asn,direct,3'vRNA
+4wsb,template binding 1,B,R,672,Arg,direct,3'vRNA
+4wsb,template binding 1,B,R,673,Ser,direct,3'vRNA
+4wsb,template binding 1,B,R,674,Ile,indirect,3'vRNA
+4wsb,template binding 1,B,R,675,Leu,indirect,3'vRNA
+4wsb,template binding 1,B,R,676,Asn,direct,3'vRNA
+4wsb,template binding 1,B,R,677,Thr,indirect,3'vRNA
+4wsb,template binding 1,B,V,33,Gly,indirect,5'vRNA
+4wsb,template binding 1,B,V,32,His,direct,5'vRNA
+4wsb,template binding 1,B,V,34,Thr,direct,5'vRNA
+4wsb,template binding 1,B,V,38,Tyr,indirect,5'vRNA
+4wsb,template binding 1,B,V,188,Lys,indirect,5'vRNA
+4wsb,template binding 1,B,V,200,Ile,indirect,5'vRNA
+4wsb,template binding 1,B,V,201,Thr,direct,5'vRNA
+4wsb,template binding 1,B,V,203,Arg,indirect,5'vRNA
+4wsb,template binding 1,B,V,355,Tyr,indirect,5'vRNA
+4wsb,template binding 1,B,V,356,Met,indirect,5'vRNA
+4wsb,template binding 1,B,V,358,Glu,direct,5'vRNA
+4wsb,template binding 1,B,V,365,Arg,direct,5'vRNA
+7nhx,template binding 1,B,E,135,Arg,direct,3'vRNA
+7nhx,template binding 1,B,E,672,Arg,direct,3'vRNA
+7nhx,template binding 1,B,E,673,Ser,direct,3'vRNA
+7nhx,template binding 1,B,E,676,Asn,direct,3'vRNA
+7nhx,template binding 1,B,E,671,Asn,indirect,3'vRNA
+7nhx,template binding 1,B,E,674,Ile,indirect,3'vRNA
+7nhx,template binding 1,B,E,675,Leu,indirect,3'vRNA
+7nhx,template binding 1,B,E,677,Thr,indirect,3'vRNA
+7nhx,template binding 1,B,F,32,His,indirect,5'vRNA
+7nhx,template binding 1,B,F,33,Gly,indirect,5'vRNA
+7nhx,template binding 1,B,F,34,Thr,direct,5'vRNA
+7nhx,template binding 1,B,F,37,Gly,indirect,5'vRNA
+7nhx,template binding 1,B,F,38,Tyr,indirect,5'vRNA
+7nhx,template binding 1,B,F,237,Lys,indirect,5'vRNA
+7nhx,template binding 1,B,F,355,Tyr,indirect,5'vRNA
+7nhx,template binding 1,B,F,356,Met,indirect,5'vRNA
+7nhx,template binding 1,B,F,365,Arg,direct,5'vRNA
+7nhx,template binding 1,B,F,676,Asn,indirect,5'vRNA
+6t0n,template binding 2,B,V,32,His,indirect,5'vRNA
+6t0n,template binding 2,B,V,33,Gly,indirect,5'vRNA
+6t0n,template binding 2,B,V,34,Thr,direct,5'vRNA
+6t0n,template binding 2,B,V,38,Tyr,direct,5'vRNA
+6t0n,template binding 2,B,V,203,Arg,indirect,5'vRNA
+6t0n,template binding 2,B,V,355,Tyr,indirect,5'vRNA
+6t0n,template binding 2,B,V,356,Met,indirect,5'vRNA
+6t0n,template binding 2,B,V,365,Arg,direct,5'vRNA
+6t0n,template binding 2,B,R,125,Gly,indirect,3'vRNA
+6t0n,template binding 2,B,R,126,Arg,direct,3'vRNA
+6t0n,template binding 2,B,R,127,Gln,direct,3'vRNA
+6t0n,template binding 2,B,R,135,Arg,indirect,3'vRNA
+6t0n,template binding 2,B,R,136,Asn,direct,3'vRNA
+6t0n,template binding 2,B,R,227,Met,indirect,3'vRNA
+6t0n,template binding 2,B,R,229,Lys,direct,3'vRNA
+6t0n,template binding 2,B,R,239,Arg,direct,3'vRNA
+6t0n,template binding 2,B,R,241,Ile,indirect,3'vRNA
+6t0n,template binding 2,B,R,242,Ala,indirect,3'vRNA
+6t0n,template binding 2,B,R,243,Thr,indirect,3'vRNA
+6t0n,template binding 2,B,R,249,Arg,direct,3'vRNA
+6t0n,template binding 2,B,R,409,Met,direct,3'vRNA
+6t0n,template binding 2,B,R,353,Arg,indirect,3'vRNA
+6t0n,template binding 2,B,R,413,Asn,direct,3'vRNA
+6t0n,template binding 2,B,R,411,Met,indirect,3'vRNA
+6t0n,template binding 2,B,R,651,Pro,indirect,3'vRNA
+6t0n,template binding 2,B,R,671,Asn,direct,3'vRNA
+6t0n,template binding 2,B,R,672,Arg,direct,3'vRNA
+6t0n,template binding 2,B,R,673,Ser,direct,3'vRNA
+6t0n,template binding 2,B,R,676,Asn,direct,3'vRNA
+6t0n,template binding 2,B,R,677,Thr,indirect,3'vRNA
+5m3h,cap snatching,B,R,671,Asn,direct,3'vRNA
+5m3h,cap snatching,B,R,672,Arg,direct,3'vRNA
+5m3h,cap snatching,B,R,673,Ser,direct,3'vRNA
+5m3h,cap snatching,B,R,674,Ile,indirect,3'vRNA
+5m3h,cap snatching,B,R,676,Asn,direct,3'vRNA
+5m3h,cap snatching,B,V,32,His,direct,5'vRNA
+5m3h,cap snatching,B,V,33,Gly,indirect,5'vRNA
+5m3h,cap snatching,B,V,34,Thr,direct,5'vRNA
+5m3h,cap snatching,B,V,37,Gly,indirect,5'vRNA
+5m3h,cap snatching,B,V,38,Tyr,indirect,5'vRNA
+5m3h,cap snatching,B,V,188,Lys,direct,5'vRNA
+5m3h,cap snatching,B,V,200,Ile,indirect,5'vRNA
+5m3h,cap snatching,B,V,201,Thr,direct,5'vRNA
+5m3h,cap snatching,B,V,203,Arg,indirect,5'vRNA
+5m3h,cap snatching,B,V,237,Lys,indirect,5'vRNA
+5m3h,cap snatching,B,V,355,Tyr,indirect,5'vRNA
+5m3h,cap snatching,B,V,356,Met,indirect,5'vRNA
+5m3h,cap snatching,B,V,358,Glu,direct,5'vRNA
+5m3h,cap snatching,B,V,365,Arg,direct,5'vRNA
+6rr7,pre-initiation,B,E,126,Arg,direct,3'vRNA
+6rr7,pre-initiation,B,E,127,Gln,indirect,3'vRNA
+6rr7,pre-initiation,B,E,135,Arg,indirect,3'vRNA
+6rr7,pre-initiation,B,E,136,Asn,direct,3'vRNA
+6rr7,pre-initiation,B,E,225,Asn,direct,3'vRNA
+6rr7,pre-initiation,B,E,227,Met,indirect,3'vRNA
+6rr7,pre-initiation,B,E,229,Lys,direct,3'vRNA
+6rr7,pre-initiation,B,E,230,Asp,indirect,3'vRNA
+6rr7,pre-initiation,B,E,241,Ile,indirect,3'vRNA
+6rr7,pre-initiation,B,E,409,Met,indirect,3'vRNA
+6rr7,pre-initiation,B,E,410,Gly,direct,3'vRNA
+6rr7,pre-initiation,B,E,413,Asn,direct,3'vRNA
+6rr7,pre-initiation,B,E,650,Gly,indirect,3'vRNA
+6rr7,pre-initiation,B,E,651,Pro,indirect,3'vRNA
+6rr7,pre-initiation,B,E,671,Asn,direct,3'vRNA
+6rr7,pre-initiation,B,E,672,Arg,direct,3'vRNA
+6rr7,pre-initiation,B,E,673,Ser,direct,3'vRNA
+6rr7,pre-initiation,B,E,674,Ile,indirect,3'vRNA
+6rr7,pre-initiation,B,E,676,Asn,direct,3'vRNA
+6rr7,pre-initiation,B,E,677,Thr,indirect,3'vRNA
+6rr7,pre-initiation,B,D,32,His,indirect,5'vRNA
+6rr7,pre-initiation,B,D,33,Gly,indirect,5'vRNA
+6rr7,pre-initiation,B,D,34,Thr,direct,5'vRNA
+6rr7,pre-initiation,B,D,38,Tyr,indirect,5'vRNA
+6rr7,pre-initiation,B,D,188,Lys,indirect,5'vRNA
+6rr7,pre-initiation,B,D,355,Tyr,indirect,5'vRNA
+6rr7,pre-initiation,B,D,356,Met,indirect,5'vRNA
+6rr7,pre-initiation,B,D,365,Arg,direct,5'vRNA
+6qcw,mixed pre-initiation,B,M,24,Tyr,direct,capped mRNA
+6qcw,mixed pre-initiation,B,M,126,Arg,direct,capped mRNA
+6qcw,mixed pre-initiation,B,M,233,Arg,direct,capped mRNA
+6qcw,mixed pre-initiation,B,M,260,Lys,indirect,capped mRNA
+6qcw,mixed pre-initiation,B,M,277,Glu,direct,capped mRNA
+6qcw,mixed pre-initiation,B,M,414,Asn,direct,capped mRNA
+6qcw,mixed pre-initiation,B,M,442,Ser,direct,capped mRNA
+6qcw,mixed pre-initiation,B,M,443,Ser,indirect,capped mRNA
+6qcw,mixed pre-initiation,B,M,444,Asp,direct,capped mRNA
+6qcw,mixed pre-initiation,B,M,445,Asp,indirect,capped mRNA
+6qcw,mixed pre-initiation,B,M,492,Thr,indirect,capped mRNA
+6qcw,mixed pre-initiation,B,M,493,Ser,indirect,capped mRNA
+6qcw,mixed pre-initiation,B,M,506,Met,indirect,capped mRNA
+6qcw,mixed pre-initiation,B,M,507,Glu,indirect,capped mRNA
+6qcw,mixed pre-initiation,B,M,509,Pro,indirect,capped mRNA
+6qcw,mixed pre-initiation,B,M,510,Ser,indirect,capped mRNA
+6qcw,mixed pre-initiation,B,M,652,Lys,direct,capped mRNA
+6qcw,mixed pre-initiation,B,M,655,Asp,direct,capped mRNA
+6qcw,mixed pre-initiation,B,R,125,Gly,indirect,3'vRNA
+6qcw,mixed pre-initiation,B,R,126,Arg,indirect,3'vRNA
+6qcw,mixed pre-initiation,B,R,127,Gln,direct,3'vRNA
+6qcw,mixed pre-initiation,B,R,225,Asn,indirect,3'vRNA
+6qcw,mixed pre-initiation,B,R,227,Met,indirect,3'vRNA
+6qcw,mixed pre-initiation,B,R,136,Asn,direct,3'vRNA
+6qcw,mixed pre-initiation,B,R,229,Lys,direct,3'vRNA
+6qcw,mixed pre-initiation,B,R,230,Asp,direct,3'vRNA
+6qcw,mixed pre-initiation,B,R,241,Ile,indirect,3'vRNA
+6qcw,mixed pre-initiation,B,R,242,Ala,indirect,3'vRNA
+6qcw,mixed pre-initiation,B,R,243,Thr,indirect,3'vRNA
+6qcw,mixed pre-initiation,B,R,249,Arg,direct,3'vRNA
+6qcw,mixed pre-initiation,B,R,271,Leu,indirect,3'vRNA
+6qcw,mixed pre-initiation,B,V,32,His,indirect,5'vRNA
+6qcw,mixed pre-initiation,B,V,33,Gly,indirect,5'vRNA
+6qcw,mixed pre-initiation,B,V,34,Thr,indirect,5'vRNA
+6qcw,mixed pre-initiation,B,V,38,Tyr,indirect,5'vRNA
+6qcw,mixed pre-initiation,B,V,237,Lys,indirect,5'vRNA
+6qcw,mixed pre-initiation,B,V,356,Met,indirect,5'vRNA
+6qcw,mixed pre-initiation,B,V,365,Lys,direct,5'vRNA
+6qcw,mixed pre-initiation,B,V,384,Glu,direct,5'vRNA
+6qcv,mixed pre-catalysis,B,M,24,Tyr,direct,capped mRNA
+6qcv,mixed pre-catalysis,B,M,126,Arg,direct,capped mRNA
+6qcv,mixed pre-catalysis,B,M,277,Glu,direct,capped mRNA
+6qcv,mixed pre-catalysis,B,M,414,Asn,indirect,capped mRNA
+6qcv,mixed pre-catalysis,B,M,443,Ser,indirect,capped mRNA
+6qcv,mixed pre-catalysis,B,M,444,Asp,direct,capped mRNA
+6qcv,mixed pre-catalysis,B,M,445,Asp,indirect,capped mRNA
+6qcv,mixed pre-catalysis,B,M,492,Thr,indirect,capped mRNA
+6qcv,mixed pre-catalysis,B,M,506,Met,indirect,capped mRNA
+6qcv,mixed pre-catalysis,B,M,509,Pro,indirect,capped mRNA
+6qcv,mixed pre-catalysis,B,M,510,Ser,indirect,capped mRNA
+6qcv,mixed pre-catalysis,B,M,514,Ala,indirect,capped mRNA
+6qcv,mixed pre-catalysis,B,M,654,Met,indirect,capped mRNA
+6qcv,mixed pre-catalysis,B,M,655,Asp,indirect,capped mRNA
+6qcv,mixed pre-catalysis,B,R,125,Gly,indirect,3'vRNA
+6qcv,mixed pre-catalysis,B,R,126,Arg,indirect,3'vRNA
+6qcv,mixed pre-catalysis,B,R,127,Gln,indirect,3'vRNA
+6qcv,mixed pre-catalysis,B,R,135,Arg,indirect,3'vRNA
+6qcv,mixed pre-catalysis,B,R,227,Met,indirect,3'vRNA
+6qcv,mixed pre-catalysis,B,R,136,Asn,direct,3'vRNA
+6qcv,mixed pre-catalysis,B,R,230,Asp,indirect,3'vRNA
+6qcv,mixed pre-catalysis,B,R,241,Ile,indirect,3'vRNA
+6qcv,mixed pre-catalysis,B,R,229,Lys,direct,3'vRNA
+6qcv,mixed pre-catalysis,B,R,243,Thr,indirect,3'vRNA
+6qcv,mixed pre-catalysis,B,R,242,Ala,direct,3'vRNA
+6qcv,mixed pre-catalysis,B,R,260,Lys,direct,3'vRNA
+6qcv,mixed pre-catalysis,B,R,249,Arg,direct,3'vRNA
+6qcv,mixed pre-catalysis,B,R,271,Leu,indirect,3'vRNA
+6qcv,mixed pre-catalysis,B,R,272,Pro,direct,3'vRNA
+6qcv,mixed pre-catalysis,B,R,273,Val,indirect,3'vRNA
+6qcv,mixed pre-catalysis,B,R,274,Gly,indirect,3'vRNA
+6qcv,mixed pre-catalysis,B,R,275,Gly,indirect,3'vRNA
+6qcv,mixed pre-catalysis,B,R,352,Gly,direct,3'vRNA
+6qcv,mixed pre-catalysis,B,R,410,Met,indirect,3'vRNA
+6qcv,mixed pre-catalysis,B,R,353,Lys,direct,3'vRNA
+6qcv,mixed pre-catalysis,B,R,411,Gly,direct,3'vRNA
+6qcv,mixed pre-catalysis,B,R,412,Met,indirect,3'vRNA
+6qcv,mixed pre-catalysis,B,R,414,Asn,direct,3'vRNA
+6qcv,mixed pre-catalysis,B,R,415,Met,indirect,3'vRNA
+6qcv,mixed pre-catalysis,B,R,670,Asn,direct,3'vRNA
+6qcv,mixed pre-catalysis,B,R,671,Arg,direct,3'vRNA
+6qcv,mixed pre-catalysis,B,R,672,Ser,direct,3'vRNA
+6qcv,mixed pre-catalysis,B,R,675,Asn,direct,3'vRNA
+6qcv,mixed pre-catalysis,B,V,32,His,indirect,5'vRNA
+6qcv,mixed pre-catalysis,B,V,33,Gly,indirect,5'vRNA
+6qcv,mixed pre-catalysis,B,V,34,Thr,indirect,5'vRNA
+6qcv,mixed pre-catalysis,B,V,38,Tyr,indirect,5'vRNA
+6qcv,mixed pre-catalysis,B,V,237,Lys,indirect,5'vRNA
+6qcv,mixed pre-catalysis,B,V,356,Met,indirect,5'vRNA
+6qcv,mixed pre-catalysis,B,V,365,Lys,direct,5'vRNA
+6qcx,mixed pre-incorporation,B,M,24,Tyr,direct,capped mRNA
+6qcx,mixed pre-incorporation,B,M,126,Arg,direct,capped mRNA
+6qcx,mixed pre-incorporation,B,M,239,Arg,indirect,capped mRNA
+6qcx,mixed pre-incorporation,B,M,277,Glu,direct,capped mRNA
+6qcx,mixed pre-incorporation,B,M,309,Trp,indirect,capped mRNA
+6qcx,mixed pre-incorporation,B,M,310,Asn,direct,capped mRNA
+6qcx,mixed pre-incorporation,B,M,410,Met,indirect,capped mRNA
+6qcx,mixed pre-incorporation,B,M,411,Gly,indirect,capped mRNA
+6qcx,mixed pre-incorporation,B,M,414,Asn,indirect,capped mRNA
+6qcx,mixed pre-incorporation,B,M,443,Ser,indirect,capped mRNA
+6qcx,mixed pre-incorporation,B,M,444,Asp,direct,capped mRNA
+6qcx,mixed pre-incorporation,B,M,445,Asp,indirect,capped mRNA
+6qcx,mixed pre-incorporation,B,M,492,Thr,indirect,capped mRNA
+6qcx,mixed pre-incorporation,B,M,506,Met,indirect,capped mRNA
+6qcx,mixed pre-incorporation,B,M,509,Pro,indirect,capped mRNA
+6qcx,mixed pre-incorporation,B,M,510,Ser,indirect,capped mRNA
+6qcx,mixed pre-incorporation,B,M,652,Lys,indirect,capped mRNA
+6qcx,mixed pre-incorporation,B,M,655,Asp,indirect,capped mRNA
+6qcx,mixed pre-incorporation,B,R,125,Gly,indirect,3'vRNA
+6qcx,mixed pre-incorporation,B,R,126,Arg,indirect,3'vRNA
+6qcx,mixed pre-incorporation,B,R,127,Gln,direct,3'vRNA
+6qcx,mixed pre-incorporation,B,R,135,Arg,indirect,3'vRNA
+6qcx,mixed pre-incorporation,B,R,227,Met,indirect,3'vRNA
+6qcx,mixed pre-incorporation,B,R,136,Asn,direct,3'vRNA
+6qcx,mixed pre-incorporation,B,R,229,Lys,direct,3'vRNA
+6qcx,mixed pre-incorporation,B,R,230,Asp,direct,3'vRNA
+6qcx,mixed pre-incorporation,B,R,241,Ile,indirect,3'vRNA
+6qcx,mixed pre-incorporation,B,R,242,Ala,direct,3'vRNA
+6qcx,mixed pre-incorporation,B,R,243,Thr,indirect,3'vRNA
+6qcx,mixed pre-incorporation,B,R,249,Arg,direct,3'vRNA
+6qcx,mixed pre-incorporation,B,R,260,Lys,direct,3'vRNA
+6qcx,mixed pre-incorporation,B,R,271,Leu,indirect,3'vRNA
+6qcx,mixed pre-incorporation,B,R,272,Pro,direct,3'vRNA
+6qcx,mixed pre-incorporation,B,R,273,Val,indirect,3'vRNA
+6qcx,mixed pre-incorporation,B,R,274,Gly,indirect,3'vRNA
+6qcx,mixed pre-incorporation,B,R,275,Gly,indirect,3'vRNA
+6qcx,mixed pre-incorporation,B,R,352,Gly,direct,3'vRNA
+6qcx,mixed pre-incorporation,B,R,410,Met,direct,3'vRNA
+6qcx,mixed pre-incorporation,B,R,353,Lys,indirect,3'vRNA
+6qcx,mixed pre-incorporation,B,R,411,Gly,direct,3'vRNA
+6qcx,mixed pre-incorporation,B,R,414,Asn,direct,3'vRNA
+6qcx,mixed pre-incorporation,B,R,415,Met,indirect,3'vRNA
+6qcx,mixed pre-incorporation,B,R,670,Asn,direct,3'vRNA
+6qcx,mixed pre-incorporation,B,R,671,Arg,direct,3'vRNA
+6qcx,mixed pre-incorporation,B,R,672,Ser,direct,3'vRNA
+6qcx,mixed pre-incorporation,B,R,675,Asn,direct,3'vRNA
+6qcx,mixed pre-incorporation,B,V,32,His,indirect,5'vRNA
+6qcx,mixed pre-incorporation,B,V,33,Gly,indirect,5'vRNA
+6qcx,mixed pre-incorporation,B,V,34,Thr,direct,5'vRNA
+6qcx,mixed pre-incorporation,B,V,38,Tyr,indirect,5'vRNA
+6qcx,mixed pre-incorporation,B,V,237,Lys,indirect,5'vRNA
+6qcx,mixed pre-incorporation,B,V,356,Met,indirect,5'vRNA
+6qcx,mixed pre-incorporation,B,V,365,Lys,direct,5'vRNA
+6t0v,mixed pre-incorporation,B,M,124,Gln,direct,capped mRNA
+6t0v,mixed pre-incorporation,B,M,126,Arg,direct,capped mRNA
+6t0v,mixed pre-incorporation,B,M,444,Ser,indirect,capped mRNA
+6t0v,mixed pre-incorporation,B,M,445,Asp,direct,capped mRNA
+6t0v,mixed pre-incorporation,B,M,446,Asp,direct,capped mRNA
+6t0v,mixed pre-incorporation,B,M,493,Thr,indirect,capped mRNA
+6t0v,mixed pre-incorporation,B,M,494,Ser,direct,capped mRNA
+6t0v,mixed pre-incorporation,B,M,607,Met,indirect,capped mRNA
+6t0v,mixed pre-incorporation,B,M,508,Glu,indirect,capped mRNA
+6t0v,mixed pre-incorporation,B,M,510,Pro,indirect,capped mRNA
+6t0v,mixed pre-incorporation,B,M,511,Ser,indirect,capped mRNA
+6t0v,mixed pre-incorporation,B,M,706,Arg,indirect,capped mRNA
+6t0v,mixed pre-incorporation,B,R,125,Gly,indirect,3'vRNA
+6t0v,mixed pre-incorporation,B,R,126,Arg,direct,3'vRNA
+6t0v,mixed pre-incorporation,B,R,127,Gln,indirect,3'vRNA
+6t0v,mixed pre-incorporation,B,R,135,Arg,indirect,3'vRNA
+6t0v,mixed pre-incorporation,B,R,136,Asn,direct,3'vRNA
+6t0v,mixed pre-incorporation,B,R,225,Asn,direct,3'vRNA
+6t0v,mixed pre-incorporation,B,R,227,Met,indirect,3'vRNA
+6t0v,mixed pre-incorporation,B,R,230,Asp,indirect,3'vRNA
+6t0v,mixed pre-incorporation,B,R,241,Ile,indirect,3'vRNA
+6t0v,mixed pre-incorporation,B,R,243,Thr,indirect,3'vRNA
+6t0v,mixed pre-incorporation,B,R,244,Pro,indirect,3'vRNA
+6t0v,mixed pre-incorporation,B,R,242,Ala,direct,3'vRNA
+6t0v,mixed pre-incorporation,B,R,249,Arg,indirect,3'vRNA
+6t0v,mixed pre-incorporation,B,R,260,Arg,direct,3'vRNA
+6t0v,mixed pre-incorporation,B,R,272,Pro,direct,3'vRNA
+6t0v,mixed pre-incorporation,B,R,273,Val,indirect,3'vRNA
+6t0v,mixed pre-incorporation,B,R,274,Gly,direct,3'vRNA
+6t0v,mixed pre-incorporation,B,R,275,Gly,indirect,3'vRNA
+6t0v,mixed pre-incorporation,B,R,350,Arg,indirect,3'vRNA
+6t0v,mixed pre-incorporation,B,R,352,Gly,indirect,3'vRNA
+6t0v,mixed pre-incorporation,B,R,353,Arg,indirect,3'vRNA
+6t0v,mixed pre-incorporation,B,R,409,Met,indirect,3'vRNA
+6t0v,mixed pre-incorporation,B,R,410,Gly,indirect,3'vRNA
+6t0v,mixed pre-incorporation,B,R,411,Met,indirect,3'vRNA
+6t0v,mixed pre-incorporation,B,R,414,Met,indirect,3'vRNA
+6t0v,mixed pre-incorporation,B,R,525,Ile,indirect,3'vRNA
+6t0v,mixed pre-incorporation,B,R,528,Thr,indirect,3'vRNA
+6t0v,mixed pre-incorporation,B,R,532,Thr,indirect,3'vRNA
+6t0v,mixed pre-incorporation,B,R,633,His,indirect,3'vRNA
+6t0v,mixed pre-incorporation,B,R,667,Thr,indirect,3'vRNA
+6t0v,mixed pre-incorporation,B,R,670,Arg,direct,3'vRNA
+6t0v,mixed pre-incorporation,B,R,673,Ser,indirect,3'vRNA
+6t0v,mixed pre-incorporation,B,R,687,Arg,indirect,3'vRNA
+6t0v,mixed pre-incorporation,B,R,690,Gln,indirect,3'vRNA
+6t0v,mixed pre-incorporation,B,R,694,Gln,indirect,3'vRNA
+6t0v,mixed pre-incorporation,B,R,704,Thr,indirect,3'vRNA
+6t0v,mixed pre-incorporation,B,V,32,His,indirect,5'vRNA
+6t0v,mixed pre-incorporation,B,V,33,Gly,indirect,5'vRNA
+6t0v,mixed pre-incorporation,B,V,37,Gly,indirect,5'vRNA
+6t0v,mixed pre-incorporation,B,V,34,Thr,direct,5'vRNA
+6t0v,mixed pre-incorporation,B,V,38,Tyr,indirect,5'vRNA
+6t0v,mixed pre-incorporation,B,V,186,Gln,indirect,5'vRNA
+6t0v,mixed pre-incorporation,B,V,193,Asp,direct,5'vRNA
+6t0v,mixed pre-incorporation,B,V,198,Lys,indirect,5'vRNA
+6t0v,mixed pre-incorporation,B,V,200,Ile,indirect,5'vRNA
+6t0v,mixed pre-incorporation,B,V,196,Ser,direct,5'vRNA
+6t0v,mixed pre-incorporation,B,V,203,Arg,direct,5'vRNA
+6t0v,mixed pre-incorporation,B,V,237,Lys,indirect,5'vRNA
+6t0v,mixed pre-incorporation,B,V,355,Tyr,indirect,5'vRNA
+6t0v,mixed pre-incorporation,B,V,356,Met,direct,5'vRNA
+6t0v,mixed pre-incorporation,B,V,673,Ser,indirect,5'vRNA
+6t0v,mixed pre-incorporation,B,V,365,Arg,direct,5'vRNA
+6t0v,mixed pre-incorporation,B,V,674,Ile,indirect,5'vRNA
+6t0v,mixed pre-incorporation,B,V,675,Leu,direct,5'vRNA
+6t0v,mixed pre-incorporation,B,V,676,Asn,direct,5'vRNA
+6szv,elongation,B,M,24,Tyr,indirect,capped mRNA
+6szv,elongation,B,M,124,Gln,indirect,capped mRNA
+6szv,elongation,B,M,126,Arg,direct,capped mRNA
+6szv,elongation,B,M,413,Asn,direct,capped mRNA
+6szv,elongation,B,M,444,Ser,direct,capped mRNA
+6szv,elongation,B,M,445,Asp,direct,capped mRNA
+6szv,elongation,B,M,446,Asp,direct,capped mRNA
+6szv,elongation,B,M,493,Thr,indirect,capped mRNA
+6szv,elongation,B,M,507,Met,indirect,capped mRNA
+6szv,elongation,B,M,510,Pro,indirect,capped mRNA
+6szv,elongation,B,M,511,Ser,indirect,capped mRNA
+6szv,elongation,B,M,706,Arg,indirect,capped mRNA
+6szv,elongation,B,R,125,Gly,indirect,3'vRNA
+6szv,elongation,B,R,126,Arg,direct,3'vRNA
+6szv,elongation,B,R,135,Arg,indirect,3'vRNA
+6szv,elongation,B,R,136,Asn,direct,3'vRNA
+6szv,elongation,B,R,127,Gln,direct,3'vRNA
+6szv,elongation,B,R,225,Asn,direct,3'vRNA
+6szv,elongation,B,R,227,Met,indirect,3'vRNA
+6szv,elongation,B,R,241,Ile,indirect,3'vRNA
+6szv,elongation,B,R,243,Thr,indirect,3'vRNA
+6szv,elongation,B,R,242,Ala,direct,3'vRNA
+6szv,elongation,B,R,249,Arg,direct,3'vRNA
+6szv,elongation,B,R,260,Arg,direct,3'vRNA
+6szv,elongation,B,R,272,Pro,direct,3'vRNA
+6szv,elongation,B,R,274,Gly,indirect,3'vRNA
+6szv,elongation,B,R,275,Gly,indirect,3'vRNA
+6szv,elongation,B,R,350,Arg,indirect,3'vRNA
+6szv,elongation,B,R,352,Gly,indirect,3'vRNA
+6szv,elongation,B,R,410,Gly,direct,3'vRNA
+6szv,elongation,B,R,353,Arg,indirect,3'vRNA
+6szv,elongation,B,R,409,Met,indirect,3'vRNA
+6szv,elongation,B,R,411,Met,indirect,3'vRNA
+6szv,elongation,B,R,413,Asn,indirect,3'vRNA
+6szv,elongation,B,R,414,Met,indirect,3'vRNA
+6szv,elongation,B,R,525,Ile,indirect,3'vRNA
+6szv,elongation,B,R,528,Thr,indirect,3'vRNA
+6szv,elongation,B,R,532,Thr,indirect,3'vRNA
+6szv,elongation,B,R,633,His,indirect,3'vRNA
+6szv,elongation,B,R,667,Thr,indirect,3'vRNA
+6szv,elongation,B,R,668,Pro,direct,3'vRNA
+6szv,elongation,B,R,669,Lys,indirect,3'vRNA
+6szv,elongation,B,R,670,Arg,direct,3'vRNA
+6szv,elongation,B,R,673,Ser,indirect,3'vRNA
+6szv,elongation,B,R,680,Arg,indirect,3'vRNA
+6szv,elongation,B,R,683,Leu,indirect,3'vRNA
+6szv,elongation,B,R,687,Arg,indirect,3'vRNA
+6szv,elongation,B,R,690,Gln,indirect,3'vRNA
+6szv,elongation,B,R,694,Gln,indirect,3'vRNA
+6szv,elongation,B,R,704,Thr,indirect,3'vRNA
+6szv,elongation,B,V,32,His,indirect,5'vRNA
+6szv,elongation,B,V,33,Gly,indirect,5'vRNA
+6szv,elongation,B,V,34,Thr,direct,5'vRNA
+6szv,elongation,B,V,37,Gly,indirect,5'vRNA
+6szv,elongation,B,V,38,Tyr,direct,5'vRNA
+6szv,elongation,B,V,186,Gln,indirect,5'vRNA
+6szv,elongation,B,V,193,Asp,direct,5'vRNA
+6szv,elongation,B,V,196,Ser,direct,5'vRNA
+6szv,elongation,B,V,200,Ile,indirect,5'vRNA
+6szv,elongation,B,V,203,Arg,direct,5'vRNA
+6szv,elongation,B,V,237,Lys,indirect,5'vRNA
+6szv,elongation,B,V,198,Lys,direct,5'vRNA
+6szv,elongation,B,V,355,Tyr,indirect,5'vRNA
+6szv,elongation,B,V,356,Met,indirect,5'vRNA
+6szv,elongation,B,V,365,Arg,direct,5'vRNA
+6szv,elongation,B,V,673,Ser,indirect,5'vRNA
+6szv,elongation,B,V,674,Ile,indirect,5'vRNA
+6szv,elongation,B,V,675,Leu,direct,5'vRNA
+6szv,elongation,B,V,676,Asn,direct,5'vRNA
+6szu,termination,B,M,24,Tyr,direct,capped mRNA
+6szu,termination,B,M,229,Lys,indirect,capped mRNA
+6szu,termination,B,M,241,Ile,indirect,capped mRNA
+6szu,termination,B,M,239,Arg,direct,capped mRNA
+6szu,termination,B,M,309,Trp,indirect,capped mRNA
+6szu,termination,B,M,310,Asn,direct,capped mRNA
+6szu,termination,B,M,409,Met,indirect,capped mRNA
+6szu,termination,B,M,410,Gly,direct,capped mRNA
+6szu,termination,B,M,444,Ser,direct,capped mRNA
+6szu,termination,B,M,445,Asp,direct,capped mRNA
+6szu,termination,B,M,446,Asp,direct,capped mRNA
+6szu,termination,B,M,493,Thr,indirect,capped mRNA
+6szu,termination,B,M,507,Met,indirect,capped mRNA
+6szu,termination,B,M,510,Pro,indirect,capped mRNA
+6szu,termination,B,M,511,Ser,indirect,capped mRNA
+6szu,termination,B,M,705,Tyr,indirect,capped mRNA
+6szu,termination,B,V,30,Tyr,indirect,5'vRNA
+6szu,termination,B,V,32,His,direct,5'vRNA
+6szu,termination,B,V,33,Gly,indirect,5'vRNA
+6szu,termination,B,V,34,Thr,direct,5'vRNA
+6szu,termination,B,V,37,Gly,indirect,5'vRNA
+6szu,termination,B,V,38,Tyr,indirect,5'vRNA
+6szu,termination,B,V,125,Gly,indirect,5'vRNA
+6szu,termination,B,V,126,Arg,direct,5'vRNA
+6szu,termination,B,V,135,Arg,indirect,5'vRNA
+6szu,termination,B,V,127,Gln,direct,5'vRNA
+6szu,termination,B,V,186,Gln,indirect,5'vRNA
+6szu,termination,B,V,191,Ile,indirect,5'vRNA
+6szu,termination,B,V,136,Asn,direct,5'vRNA
+6szu,termination,B,V,200,Ile,indirect,5'vRNA
+6szu,termination,B,V,202,Gln,indirect,5'vRNA
+6szu,termination,B,V,193,Asp,direct,5'vRNA
+6szu,termination,B,V,196,Ser,direct,5'vRNA
+6szu,termination,B,V,229,Lys,direct,5'vRNA
+6szu,termination,B,V,227,Met,indirect,5'vRNA
+6szu,termination,B,V,203,Arg,direct,5'vRNA
+6szu,termination,B,V,198,Lys,direct,5'vRNA
+6szu,termination,B,V,237,Lys,indirect,5'vRNA
+6szu,termination,B,V,242,Ala,direct,5'vRNA
+6szu,termination,B,V,249,Arg,direct,5'vRNA
+6szu,termination,B,V,243,Thr,indirect,5'vRNA
+6szu,termination,B,V,260,Arg,direct,5'vRNA
+6szu,termination,B,V,271,Leu,indirect,5'vRNA
+6szu,termination,B,V,272,Pro,direct,5'vRNA
+6szu,termination,B,V,274,Gly,indirect,5'vRNA
+6szu,termination,B,V,356,Met,direct,5'vRNA
+6szu,termination,B,V,275,Gly,indirect,5'vRNA
+6szu,termination,B,V,353,Arg,direct,5'vRNA
+6szu,termination,B,V,355,Tyr,indirect,5'vRNA
+6szu,termination,B,V,410,Gly,direct,5'vRNA
+6szu,termination,B,V,365,Arg,direct,5'vRNA
+6szu,termination,B,V,411,Met,indirect,5'vRNA
+6szu,termination,B,V,413,Asn,indirect,5'vRNA
+6szu,termination,B,V,414,Met,indirect,5'vRNA
+6szu,termination,B,V,525,Ile,indirect,5'vRNA
+6szu,termination,B,V,528,Thr,indirect,5'vRNA
+6szu,termination,B,V,532,Thr,indirect,5'vRNA
+6szu,termination,B,V,553,Lys,direct,5'vRNA
+6szu,termination,B,V,557,Tyr,direct,5'vRNA
+6szu,termination,B,V,562,His,indirect,5'vRNA
+6szu,termination,B,V,566,Thr,indirect,5'vRNA
+6szu,termination,B,V,567,Asn,direct,5'vRNA
+6szu,termination,B,V,568,Leu,indirect,5'vRNA
+6szu,termination,B,V,569,Glu,direct,5'vRNA
+6szu,termination,B,V,571,Arg,indirect,5'vRNA
+6szu,termination,B,V,633,His,indirect,5'vRNA
+6szu,termination,B,V,635,Met,indirect,5'vRNA
+6szu,termination,B,V,667,Thr,direct,5'vRNA
+6szu,termination,B,V,670,Arg,indirect,5'vRNA
+6szu,termination,B,V,671,Asn,indirect,5'vRNA
+6szu,termination,B,V,672,Arg,direct,5'vRNA
+6szu,termination,B,V,676,Asn,direct,5'vRNA
+6szu,termination,B,V,673,Ser,direct,5'vRNA
+6szu,termination,B,V,674,Ile,indirect,5'vRNA
+6szu,termination,B,V,675,Leu,direct,5'vRNA
+6szu,termination,B,V,678,Asn,indirect,5'vRNA
+6szu,termination,B,V,679,Gln,direct,5'vRNA
+6szu,termination,B,V,680,Arg,indirect,5'vRNA
+6szu,termination,B,V,687,Arg,direct,5'vRNA
+6szu,termination,B,V,694,Gln,indirect,5'vRNA
+6szu,termination,B,V,697,Glu,direct,5'vRNA
+6szu,termination,B,V,704,Thr,direct,5'vRNA

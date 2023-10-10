@@ -1,0 +1,1631 @@
+---
+title: "Data Analysis for Deep Mutational Scanning - Analyses"
+author: "Yuan Li"
+date: "2023/10/04"
+output: 
+  html_document: 
+    toc: yes
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(tidy = "styler")
+```
+
+```{r, include=FALSE}
+options(width = 60)
+local({
+  hook_output <- knitr::knit_hooks$get('output')
+  knitr::knit_hooks$set(output = function(x, options) {
+    if (!is.null(options$max.height)) options$attr.output <- c(
+      options$attr.output,
+      sprintf('style="max-height: %s;"', options$max.height)
+    )
+    hook_output(x, options)
+  })
+})
+```
+
+```{r dir, include=FALSE}
+filedir <- "~/data/codoncounts/"
+indir <- "~/data/"
+outdir <- indir
+figdir <- "~/figures/"
+```
+
+```{r source, warning=FALSE, message=FALSE, echo=FALSE}
+source("~/functions.R")
+source("~/FigureGuide.R")
+```
+
+# Data description
+
+The source data for this analysis came from the two NextSeq runs - 8279 and 8332. The run parameters were as follows:
+
+-   P2, 600 cycle (2x 300 length)
+-   20% PhiX
+-   submitting 5nM, 30 $\mu$L
+
+I combined the two runs at the fastq level, rather than adding up the codoncounts after running each file with `dms_tools2`, because this will help maintain the sequences that had only been seen once in each run, but twice in the combined file. It turned out that my prediction worked less effectively than I thought, but it did maintain more sequences in most of the subamplicons, except for
+
+-   subamplicon 8, Rep0P0
+-   subamplicon 3, Rep1Pla
+-   subamplicon 5, Rep2Pla
+
+I compared the two merging method. Combining at the fastq level gave me slightly more coverage for codon diversity and amino acid diversity. Therefore, I combined the two runs before running `dms_tools2`.
+
+The merging was completed through bash and Greatlakes, with code
+
+```{r engine='bash', eval=FALSE}
+ls NextSeq_8279/fastqs_8279-WF/ | while read FILE; do
+        gunzip -c NextSeq_8279/fastqs_8279-WF/"$FILE" NextSeq_8332/fastqs_8332-WF/"$FILE" | gzip > "fastqs_combined/${FILE#*/}" 
+    done
+```
+
+</br>
+
+### Mutational coverage
+
+-   **Before filter**
+
+| sample | codons created | total codons possible | codons created% | amino acids created | total amino acids possible | amino acids created% |
+|-----------|:----------|:----------|:----------|:----------|:----------|:----------|
+| Rep1   | 22820          | 24647                 | 92.6%           | 15168               | 15897                      | 95.4%                |
+| Rep2   | 21995          | 24647                 | 89.2%           | 14786               | 15897                      | 93.0%                |
+| Rep3   | 20264          | 24647                 | 82.2%           | 14154               | 15897                      | 89.0%                |
+
+-   **After filter (count in plasmid \> 10, freq \> 6\times WTfreq)**
+
+| sample                            | amino acids | amino acids% |
+|:----------------------------------|:------------|:-------------|
+| Rep1                              | 11008       | 69.3%        |
+| Rep2                              | 10565       | 66.5%        |
+| Rep3                              | 10194       | 64.1%        |
+| present in all replicates         | 7351        | 46.2%        |
+| present in at least one replicate | 13354       | 84.0%        |
+
+</br>
+
+# Barcoded subamplicon sequencing analysis
+
+The analysis was done using `dms2_batch_bcsubamp`, with bash code on Greatlakes
+
+```{r engine='bash', eval=FALSE}
+dms2_batch_bcsubamp --batchfile batchfile.csv --refseq PB1_reference_codon_orfonly --alignspecs 1,279,33,33 280,567,33,33 568,870,39,35 871,1200,34,30 1201,1509,33,33 1510,1776,33,30 1777,2058,30,33 2059,2274,35,41 --outdir ./results/codoncounts --summaryprefix summary --fastqdir ./fastqs_Combined/
+```
+
+</br>
+
+### Diversity decrease throughout passages
+
+We want to know how many codons or amino acids were lost after each step of the passage. In this sequencing run, we sequenced the plasmid, P0, P1, and P4. The diversity decrease was calculated using raw codon counts, filtered out the codons that I have not made, but didn't corrected for the mutational hot spots, etc.
+
+```{r diversity decrease calc, message=FALSE}
+counts_decrease <- tibble(
+  sample = c("Rep1Pla","Rep1P0","Rep1P1","Rep1P4",
+             "Rep2Pla","Rep2P0","Rep2P1","Rep2P4",
+             "Rep3Pla","Rep3P0","Rep3P1","Rep3P4"),
+  counts.remain = c(get_counts('Rep1Pla')[1],
+                    get_counts('Rep1P0')[1],
+                    get_counts('Rep1P1')[1],
+                    get_counts('Rep1P4')[1],
+                    get_counts('Rep2Pla')[1],
+                    get_counts('Rep2P0')[1],
+                    get_counts('Rep2P1')[1],
+                    get_counts('Rep2P4')[1],
+                    get_counts('Rep3Pla')[1],
+                    get_counts('Rep3P0')[1],
+                    get_counts('Rep3P1')[1],
+                    get_counts('Rep3P4')[1]),
+  aa.remain = c(get_counts('Rep1Pla')[2],
+                get_counts('Rep1P0')[2],
+                get_counts('Rep1P1')[2],
+                get_counts('Rep1P4')[2],
+                get_counts('Rep2Pla')[2],
+                get_counts('Rep2P0')[2],
+                get_counts('Rep2P1')[2],
+                get_counts('Rep2P4')[2],
+                get_counts('Rep3Pla')[2],
+                get_counts('Rep3P0')[2],
+                get_counts('Rep3P1')[2],
+                get_counts('Rep3P4')[2])
+)
+
+counts_decrease$all.possible.codons <- 24647
+counts_decrease$all.possible.aa <- 757*21
+counts_decrease <- counts_decrease %>%
+  mutate(codon.perc.remaining = counts.remain/all.possible.codons) %>% 
+  mutate(aa.perc.remaining = aa.remain/all.possible.aa) %>% 
+  mutate(replicate = substr(sample, 1, 4),
+         passage = str_sub(sample, 5, -1))
+```
+
+```{r diversity decrease plot, warning=FALSE, message=FALSE, fig.align='center'}
+facet_labs <- c("Replicate 1", "Replicate 2", "Replicate 3")
+names(facet_labs) <- c("Rep1", "Rep2", "Rep3")
+
+codon_decrease <- ggplot(counts_decrease, aes(x = fct_inorder(passage), 
+                                              y = codon.perc.remaining*100, 
+                                              group = replicate)) +
+  geom_step(size = 1.1) +
+  geom_point() +
+  scale_y_continuous(labels = scales::label_percent(accuracy = .1, scale = 1), 
+                     limits = c(0, 100), 
+                     expand = expansion(0, 0)) +
+  labs(x = "Passage", y = "Remaining Codon%") +
+  facet_wrap(. ~ replicate, labeller = labeller(replicate = facet_labs))
+
+aa_decrease <- ggplot(counts_decrease, aes(x = fct_inorder(passage), 
+                                           y = aa.perc.remaining*100, 
+                                           group = replicate)) +
+  geom_step(size = 1.1) +
+  geom_point() +
+  scale_y_continuous(labels = scales::label_percent(accuracy = .1, scale = 1), 
+                     limits = c(0, 100), 
+                     expand = expansion(0, 0)) +
+  labs(x = "Passage", y = "Remaining Amino Acid%") +
+  facet_wrap(. ~ replicate, labeller = labeller(replicate = facet_labs))
+
+codon_decrease / aa_decrease
+```
+
+</br>
+
+# Amino acid preferences
+
+Amino acid preferences were calculated using the method described in [Nicholas Wu et. al.](https://www.ncbi.nlm.nih.gov/pmc/articles/PMC9931530/pdf/nihms-1870513.pdf). The two filters on codoncounts are:
+
+-   filter input (mutant plasmid) count \>= 10
+-   filter input frequency \>= 6x WT frequency
+
+In this method:
+
+-   Enrichment is defined as the ratio of frequency before and after passage;
+-   Fitness is defined as $\log_{10}{enrichment}$;
+-   Fitness is normalized to the average fitness of all silent mutations within corresponding individual subamplicon.
+
+</br>
+
+### Data read in
+
+**Enrichment after P4**
+
+```{r data readin, warning=FALSE, message=FALSE}
+Rep1_enrichment <- compute_enrichment("Rep1Pla", "WTPla", "Rep1P4")
+Rep2_enrichment <- compute_enrichment("Rep2Pla", "WTPla", "Rep2P4")
+Rep3_enrichment <- compute_enrichment("Rep3Pla", "WTPla", "Rep3P4")
+
+Rep1_fitness <- compute_fitness(Rep1_enrichment)
+Rep2_fitness <- compute_fitness(Rep2_enrichment)
+Rep3_fitness <- compute_fitness(Rep3_enrichment)
+
+Rep1 <- subset(Rep1_fitness, select = c(site, amplicon, mutation, mutation.type, fitness))
+Rep2 <- subset(Rep2_fitness, select = c(site, amplicon, mutation, mutation.type, fitness))
+Rep3 <- subset(Rep3_fitness, select = c(site, amplicon, mutation, mutation.type, fitness))
+```
+
+`fitness_cor` calculates only for mutations present in all three replicates.
+
+```{r}
+fitness_cor <- Rep1 %>% 
+  inner_join(Rep2, by = c("site", "amplicon", "mutation", "mutation.type"),
+             suffix = c(".Rep1", ".Rep2")) %>% 
+  inner_join(Rep3, by = c("site", "amplicon", "mutation", "mutation.type")) %>%
+  rename("fitness.Rep3" = fitness)
+```
+
+`fitness_cor_full` accounts for mutations present in at least one replicate.
+
+```{r}
+fitness_cor_full <- Rep1 %>% 
+  full_join(Rep2, by = c("site", "amplicon", "mutation", "mutation.type"),
+            suffix = c(".Rep1", ".Rep2")) %>% 
+  full_join(Rep3, by = c("site", "amplicon", "mutation", "mutation.type")) %>%
+  rename("fitness.Rep3" = fitness)
+```
+
+</br>
+
+### Fitness correlation
+
+Fitness correlation measures how similar the fitness of each variant were in three replicates. Below shows the comparison between replicates, enrichment calculated with P4 (as post-passage), and plasmid (as pre-passage):
+
+```{r define-range-ggpairs}
+LowerLimitRange <- function(data, mapping, ...) { 
+  ggplot(data = data, mapping = mapping, ...) + 
+    geom_point(...) + 
+    scale_y_continuous(limits = c(-4, 2), breaks = -4:2) +
+    scale_x_continuous(limits = c(-4, 2), breaks = -4:2) 
+}
+```
+
+
+```{r between-replicates-P4toPla, echo=1:3, warning=FALSE, fig.align='center'}
+fit_cor_ggpairs <- fitness_cor_full %>% 
+  ungroup() %>% 
+  select(fitness.Rep1, fitness.Rep2, fitness.Rep3)
+
+ggpairs(fit_cor_ggpairs, lower = list(continuous = LowerLimitRange))
+```
+
+</br>
+
+### Most mutations are detrimental, which ones are beneficial?
+
+I want to be more stringent when calling a mutation beneficial. Therefore, 1) I used the mutations that were measured by at least two replicates; 2) I calculated the mean and s.d. for silent mutations, then calculated the z-score of all mutations using the mean and s.d. of silent mutations. Higher z-score means more beneficial.
+
+```{r benefical mutations}
+benemut <- fitness_cor_full %>% 
+  ungroup() %>% 
+  rowwise() %>% 
+  mutate(avg.fitness = mean(c(fitness.Rep1, fitness.Rep2, fitness.Rep3), na.rm = T))
+
+benemut_silent_mean <- mean(filter(benemut, mutation.type == "silent")$avg.fitness)
+benemut_silent_sd <- sd(filter(benemut, mutation.type == "silent")$avg.fitness)
+
+benemut2 <- benemut[rowSums(is.na(benemut[5:7])) < 2, ]
+
+benemut2 <- benemut2 %>% 
+  mutate(zscore = (avg.fitness - benemut_silent_mean)/benemut_silent_sd) %>% 
+  filter(mutation.type == "nonsense" | mutation.type =="missense")
+```
+
+```{r benemut zscoreplot, fig.align='center'}
+ggplot(benemut2, aes(zscore)) +
+  geom_density()
+```
+
+Which mutations are the most beneficial ones, and how beneficial are they exactly?
+
+```{r benemut highest}
+benemut_table <- benemut2[order(benemut2$zscore, decreasing = T),] %>% 
+  select(site, amplicon, mutation, mutation.type, zscore) %>% 
+  filter(zscore >= 2)
+
+print.data.frame(benemut_table)
+```
+
+-   Leu108Tyr was enriched for more than 10 times in two replicates;
+-   No nonsense mutation showed up as beneficial, which is a good sanity check.
+
+The figure below shows which sites have how many beneficial mutations:
+
+```{r benemut plot, fig.align='center'}
+# where are the beneficial mutations?
+ggplot(filter(benemut2, zscore >= 2), aes(x = site)) +
+  geom_bar()
+```
+
+</br>
+
+### Mutation fitness distribution
+
+```{r fitness distribution, fig.align='center'}
+fitness_distribution_plot <- function(fitness_file, title){
+  fitness_plot <- ggplot(fitness_file, aes(x = fitness, y = after_stat(scaled),
+                                           group = mutation.type,
+                                           color = mutation.type,
+                                           fill = mutation.type)) + 
+    geom_density(alpha = 0.5) +
+    scale_color_manual(name = "Mutation Types",
+		values=c(palette[8], palette[6], palette[4], palette[9]),
+		breaks=c("missense", "nonsense", "silent", "wildtype"),
+		labels=c("Missense", "Nonsense", "Silent", "Wildtype")) +
+    scale_fill_manual(name = "Mutation Types",
+		values=c(palette[8], palette[6], palette[4], palette[9]),
+		breaks=c("missense", "nonsense", "silent", "wildtype"),
+		labels=c("Missense", "Nonsense", "Silent", "Wildtype")) +
+    labs(title = title, x = "", y = "") +
+    scale_x_continuous(limits = c(-4, 2), breaks = -4:2) +
+    scale_y_continuous(limits = c(0, 1), breaks = seq(0, 1, 0.5)) +
+    theme(plot.title = element_text(hjust = 0.5)) +
+    facet_wrap(~mutation.type, scales = "free_y", ncol = 1)
+
+    return(fitness_plot)
+  }
+  
+Rep1_fit_dis <- fitness_distribution_plot(Rep1, "Replicate1")
+Rep2_fit_dis <- fitness_distribution_plot(Rep2, "Replicate2")
+Rep3_fit_dis <- fitness_distribution_plot(Rep3, "Replicate3")
+
+fitness_distribution <- 
+  ggarrange(Rep1_fit_dis, Rep2_fit_dis, Rep3_fit_dis, ncol=3, nrow=1, 
+          common.legend = TRUE, legend="right")
+
+annotate_figure(fitness_distribution,
+                bottom = text_grob("Fitness", size = fz_axis_title),
+                left = text_grob("Density", rot = 90))
+```
+
+</br>
+
+### Fitness heatmap
+
+Fitness heatmap shows the relative fitness between variants, while the fitness of the wildtype is always close to 1. The wildtype for each site has been marked with a dot. Grey indicates that the fitness of a certain variant at a certain site was not available after filtering criteria.
+
+```{r fitness heatmap, fig.align='center', warning=FALSE, fig.dim=c(20,15)}
+fitness_cor_full$avg.fitness <- rowMeans(fitness_cor_full[,5:7], na.rm = TRUE)
+fitness_cor_full$mutation.wt <- paste0(substr(gsub('\\d','', fitness_cor_full$mutation), 1, 3),
+                                       gsub('\\D','', fitness_cor_full$mutation))
+fitness_cor_full$mutation.mt <- substr(gsub('\\d','', fitness_cor_full$mutation), 4, 6)
+
+fitness_cor_complete <- filter(fitness_cor_full, mutation.type != "silent") %>% 
+  complete(site, mutation.mt) %>% 
+  group_by(site) %>% 
+  fill(mutation.wt, .direction = "downup") %>% 
+  ungroup()
+
+heatmap_plot <- function(avg_fitness_file){
+  ggplot(avg_fitness_file, aes(x = fct_reorder(mutation.wt, site), y = mutation.mt)) +
+    geom_tile(aes(fill = avg.fitness)) +
+    labs(fill = "Fitness") +
+    theme(axis.title.x = element_blank()) +
+    theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust=1)) +
+    # theme(legend.position = "none") +
+    scale_fill_gradient2(
+      low = '#2166ac', mid = 'white', high = '#b2182b',
+      midpoint = 0, na.value = "grey50", guide = 'colorbar', aesthetics = 'fill') +
+    geom_point(data = filter(avg_fitness_file, mutation.type == "wildtype"))
+}
+
+htmp1 <- heatmap_plot(filter(fitness_cor_complete, site <= 152))
+htmp2 <- heatmap_plot(filter(fitness_cor_complete, site >= 153 & site < 304))
+htmp3 <- heatmap_plot(filter(fitness_cor_complete, site >= 304 & site < 456))
+htmp4 <- heatmap_plot(filter(fitness_cor_complete, site >= 456 & site < 608))
+htmp5 <- heatmap_plot(filter(fitness_cor_complete, site >= 608 & site <= 757))
+
+p_axis <- ggplot() + labs(x = "Site", y = "Amino Acid Variants")
+x_axis <- get_plot_component(p_axis, "xlab-b")
+y_axis <- get_plot_component(p_axis, "ylab-l")
+
+layout = "
+CA
+#B
+"
+
+ggarrange(htmp1, htmp2, htmp3, htmp4, htmp5, ncol=1, nrow=5, 
+          common.legend = TRUE, legend="right") + labs(x = NULL, y = NULL) +
+  x_axis +
+  y_axis +
+  plot_layout(heights = c(40, 1), widths = c(1, 500), design = layout)
+```
+
+Generate the table for amino acid substitutions and fitness values:
+
+```{r}
+fitness_spreadsheet <- fitness_cor_complete %>% 
+  select(amplicon, site, mutation.wt, mutation.mt, avg.fitness)
+fitness_spreadsheet$mutation.wt <- substr(fitness_spreadsheet$mutation.wt, 1, 3)
+colnames(fitness_spreadsheet) <- c("amplicon","site","wildtype","substitution","fitness")
+
+# write.csv(fitness_spreadsheet, "~/data/amino.acid.substitution.fitness.csv", row.names=FALSE)
+```
+
+</br>
+
+# Comparing to existing data
+
+In [Visher et. al.](https://journals.plos.org/plospathogens/article?id=10.1371/journal.ppat.1005856), our lab made 16 PB1 mutants on A/WSN/33/H1N1 background and ran pair-wise competition assays with the wild type. Among the 16 mutants, 6 were found lethal, and the relative fitness of 10 was measured. The following plot shows the correlation between fitness obtained by deep mutational scanning and by pair-wise competition assay.
+
+```{r compare Visher, message=FALSE, fig.align='center', warning=FALSE}
+comparison <- read_csv(paste0(indir,"comparison.csv"))
+comparison_subset <- subset(comparison, fitness.paper > 0)
+
+#fitness.paper vs. fitness.dms
+# after P0
+# Spearman correlation calculated using whole dataset
+rho_paper_vs_dms_p0 <- cor.test(x=comparison$fitness.dms.p0, 
+                                y=log10(comparison$fitness.paper), 
+                                method = 'spearman', exact=FALSE)
+rho_paper_vs_dms_p0
+# Pearson correlation calculated using viable mutations only
+r_paper_vs_dms_p0 <- cor.test(x=comparison_subset$fitness.dms.p0, 
+                                y=log10(comparison_subset$fitness.paper), 
+                                method = 'pearson', exact=FALSE)
+r_paper_vs_dms_p0
+
+ggplot(comparison, aes(x = fitness.dms.p0, y = log10(fitness.paper))) +
+  geom_point() +
+  geom_smooth(data=subset(comparison, fitness.paper > 0), formula = y ~ x, 
+              method = "lm", color = palette[8]) +
+  annotate("text", x=-1.5, y=0.5, hjust = 0, 
+           label = paste0("R = ", signif(r_paper_vs_dms_p0$estimate, digits = 2), ", ",
+                          "p = ", signif(r_paper_vs_dms_p0$p.value, digits = 3))) +
+  annotate("text", x=-1.5, y=0.4, hjust = 0, 
+           label = paste0("\u03c1 = ", signif(rho_paper_vs_dms_p0$estimate, digits = 2), ", ",
+                         "p = ", signif(rho_paper_vs_dms_p0$p.value, digits = 3))) +
+  scale_x_continuous(limits = c(-1.5, 0.5), breaks = seq(-1.5, 0.5, by=0.5)) +
+  scale_y_continuous(limits = c(-1, 0.5), breaks = seq(-1, 0.5, by=0.5)) +
+  labs(x ="Fitness after rescue (P0), deep mutational scanning", 
+       y = "Fitness, direct competition")
+
+# after P1
+# Spearman correlation calculated using whole dataset
+rho_paper_vs_dms_p1 <- cor.test(x=comparison$fitness.dms.p1, 
+                                y=log10(comparison$fitness.paper), 
+                                method = 'spearman', exact=FALSE)
+rho_paper_vs_dms_p1
+# Pearson correlation calculated using viable mutations only
+r_paper_vs_dms_p1 <- cor.test(x=comparison_subset$fitness.dms.p1, 
+                                y=log10(comparison_subset$fitness.paper), 
+                                method = 'pearson', exact=FALSE)
+r_paper_vs_dms_p1
+
+ggplot(comparison, aes(x = fitness.dms.p1, y = log10(fitness.paper))) +
+  geom_point() +
+  geom_smooth(data=subset(comparison, fitness.paper > 0), formula = y ~ x, 
+              method = "lm", color = palette[8]) + 
+  annotate("text", x=-1.5, y=0.5, hjust = 0, 
+           label = paste0("R = ", signif(r_paper_vs_dms_p1$estimate, digits = 2), ", ",
+                          "p = ", signif(r_paper_vs_dms_p1$p.value, digits = 3))) + 
+  annotate("text", x=-1.5, y=0.4, hjust = 0, 
+           label = paste0("\u03c1 = ", signif(rho_paper_vs_dms_p1$estimate, digits = 2), ", ",
+                         "p = ", signif(rho_paper_vs_dms_p1$p.value, digits = 3))) + 
+  scale_x_continuous(limits = c(-1.5, 0.5), breaks = seq(-1.5, 0.5, by=0.5)) +
+  scale_y_continuous(limits = c(-1, 0.5), breaks = seq(-1, 0.5, by=0.5)) +
+  labs(x ="Fitness after P1, deep mutational scanning", 
+       y = "Fitness, direct competition")
+
+# after P4
+# Spearman correlation calculated using whole dataset
+rho_paper_vs_dms_p4 <- cor.test(x=comparison$fitness.dms.p4, 
+                                y=log10(comparison$fitness.paper), 
+                                method = 'spearman', exact=FALSE)
+rho_paper_vs_dms_p4
+# Pearson correlation calculated using viable mutations only
+r_paper_vs_dms_p4 <- cor.test(x=comparison_subset$fitness.dms.p4, 
+                                y=log10(comparison_subset$fitness.paper), 
+                                method = 'pearson', exact=FALSE)
+r_paper_vs_dms_p4
+
+ggplot(comparison, aes(x = fitness.dms.p4, y = log10(fitness.paper))) +
+  geom_point() + 
+  geom_smooth(data=subset(comparison, fitness.paper > 0), formula = y ~ x, 
+              method = "lm", color = palette[8]) + 
+  annotate("text", x=-1.7, y=0.1, hjust = 0, 
+           label = paste0("R = ", signif(r_paper_vs_dms_p4$estimate, digits = 2), ", ",
+                          "p = ", signif(r_paper_vs_dms_p4$p.value, digits = 3))) +
+  annotate("text", x=-1.7, y=0.05, hjust = 0, 
+           label = paste0("\u03c1 = ", signif(rho_paper_vs_dms_p4$estimate, digits = 2), ", ",
+                         "p = ", signif(rho_paper_vs_dms_p4$p.value, digits = 3))) +
+  labs(x ="Fitness after P4, deep mutational scanning", 
+       y = "Fitness, direct competition")
+```
+
+</br>
+
+# Site entropy
+
+Site entropy refers to the [Shannon entropy](https://en.wikipedia.org/wiki/Entropy_(information_theory)) of each site. It is calculated by $h_r = -\displaystyle\sum_{x} \pi_{r,x} \log\left(\pi_{r,x}\right)$, where $\pi_{r,x}$ is the rescaled fitness for an amino acid variant, $x$ at site $r$, and the log is the natural logarithm. Rescaled fitness sum to 1 for each site. Site entropy was computed by the following code:
+
+```{r entropy calculation, warning=FALSE, message=FALSE}
+Rep1_nolog_fitness <- compute_nolog_fitness(Rep1_enrichment)
+Rep2_nolog_fitness <- compute_nolog_fitness(Rep2_enrichment)
+Rep3_nolog_fitness <- compute_nolog_fitness(Rep3_enrichment)
+
+Rep1_nolog <- subset(Rep1_nolog_fitness, select = c(site, amplicon, mutation, mutation.type, fitness))
+Rep2_nolog <- subset(Rep2_nolog_fitness, select = c(site, amplicon, mutation, mutation.type, fitness))
+Rep3_nolog <- subset(Rep3_nolog_fitness, select = c(site, amplicon, mutation, mutation.type, fitness))
+
+entropy_calculation <- Rep1_nolog %>% 
+  full_join(Rep2_nolog, by = c("site", "amplicon", "mutation", "mutation.type"),
+            suffix = c(".Rep1", ".Rep2")) %>% 
+  full_join(Rep3_nolog, by = c("site", "amplicon", "mutation", "mutation.type")) %>%
+  rename("fitness.Rep3" = fitness) %>% 
+  rowwise() %>% 
+  mutate(avg.nolog.fitness = mean(c_across(c(fitness.Rep1, fitness.Rep2, 
+                                             fitness.Rep3)), na.rm = TRUE)) %>% 
+  filter(mutation.type != "silent") %>% 
+  group_by(site) %>% 
+  #rescale to add up to 1
+  mutate(nolog.fitness.rescaled = avg.nolog.fitness/sum(avg.nolog.fitness)) %>%  
+  mutate(entropy = -(sum(nolog.fitness.rescaled * log(nolog.fitness.rescaled))))
+
+domain <- read_csv(paste0(indir, "pb1domains.csv"))
+
+entropy <- unique(entropy_calculation[, c(1,10)]) %>% 
+  left_join(domain, by = "site")
+```
+
+</br>
+
+## Sites with low amino acid variants
+
+You will notice that, in the fitness heatmap, there are some sites having more "grey squares" than others. The missing data will be of interest when calculating site entropy, because an amino acid variant that has low fitness and under purifying selection and an amino acid variant that was not in the plasmid library to begin with will contribute similarly to entropy calculation. Among all sites with low entropy, I want to mark the ones with less than 50% of all amino acid variants present in the plasmid library.
+
+```{r aa coverage plot, fig.align='center', message=FALSE}
+aa_missing <- fitness_cor_complete %>% 
+  group_by(site) %>% 
+  summarize(sum(is.na(avg.fitness))) %>% 
+  mutate(aa.not.missing = 21-`sum(is.na(avg.fitness))`) %>% 
+  mutate(perc.not.missing = aa.not.missing/21)
+
+ggplot(aa_missing, aes(x = aa.not.missing)) +
+  geom_bar() +
+  theme_minimal() +
+  xlab("Number of present amino acid variants") + 
+  ylab("Count of sites")
+```
+
+```{r accurate entropy}
+accurate_entropy <- filter(entropy, site %in% which(aa_missing$perc.not.missing >= 0.5))
+```
+
+</br>
+
+## Entropy mapped on structure
+
+For showing site entropy on actual PB1 structure, I chose PDB [7nhx](https://www.rcsb.org/structure/7NHX) as the model. This is a structure resolved recently for 1918 H1N1 influenza virus. In their [paper](https://www.nature.com/articles/s41467-021-27950-w), you can find related structures of PB1 in different status, which might come useful in the additional analyses.
+
+The attributes of PDB were coded by [fixed characters for every 'column'](https://www.cgl.ucsf.edu/chimera/docs/UsersGuide/tutorials/pdbintro.html#note1). Therefore, to add the entropy attribute, the easiest way is to replace an empty column with entropy data. Here, I replaced the b-factor (or temperature factor), with the following code:
+
+```{r modify PDB, message=FALSE}
+polymerase <- read.pdb(paste0(indir, "7nhx.pdb"), maxlines = -1, multi = FALSE, rm.insert = FALSE, rm.alt = FALSE, ATOM.only = FALSE, hex = FALSE, verbose = TRUE)
+
+replace <- entropy %>% 
+  ungroup() %>% 
+  mutate(chain = "B") %>%
+  mutate(resno = site) %>% 
+  select(chain, resno, entropy)
+
+pb1_modified <- merge(polymerase$atom, replace, by = c("chain", "resno"), all.x = TRUE)
+pb1_modified <- pb1_modified %>% 
+  mutate(b = case_when(!is.na(entropy) ~ formatC(entropy, digits = 2, format = "f"), 
+                       T ~ formatC(0, digits = 2, format = "f"))) %>% 
+  select(-entropy)
+
+pb1_modified <- pb1_modified[order(pb1_modified$eleno), ]
+
+polymerase$atom <- pb1_modified
+
+# write.pdb(polymerase, file=paste0(outdir, "7nhx_modified.pdb"))
+# manually added terminal lines between different chains; manually added the beginning text.
+```
+
+</br>
+
+## Entropy vs. interaction
+
+### Entropy vs. fitness
+
+Site entropy captures the general mutability of a position. There is a hypothesis that if a certain site can tolerate any amino acid variation (high site entropy),the fitness of a mutation at that site should be closer to the wild type and in general higher. This also brings up the question **whether beneficial mutations would concentrate on more variable sites**.
+
+```{r entropy vs. fitness, fig.align='center'}
+entropy_vs_fitness <- fitness_cor_full %>%
+  ungroup() %>% 
+  select(site, avg.fitness) %>% 
+  inner_join(accurate_entropy, by = "site")
+
+# Spearman's rank correlation coefficient
+rho_fit <- cor.test(x=entropy_vs_fitness$entropy, 
+                y=entropy_vs_fitness$avg.fitness, method = 'spearman', exact=FALSE)
+rho_fit
+
+ggplot(entropy_vs_fitness, 
+       aes(x = entropy, y = avg.fitness)) +
+  geom_point() +
+  annotate("text", x=2.4, y=1.5, hjust = 0, 
+           label = paste("\u03c1 =", signif(rho_fit$estimate, digits = 2))) +
+  annotate("text", x=2.4, y=1.2, hjust = 0, 
+           label = paste("p-value <", rho_fit$p.value))
+```
+
+</br>
+
+### Entropy vs. domains
+
+```{r entropy vs. domains, fig.align='center'}
+ggplot(accurate_entropy, aes(x = D, y = entropy)) +
+  geom_violin() +
+  geom_boxplot(width=0.2)
+
+#ANOVA
+domain_aov = aov(entropy~D, data = accurate_entropy)
+summary(domain_aov)
+
+#expected entropy for each domain
+domain_level = data.frame(D = unique(entropy$D))
+data.frame(domain_level, expected.entropy = predict(domain_aov, domain_level))
+```
+
+Post Hoc Testing - which domains are different?
+
+```{r}
+with(accurate_entropy, pairwise.t.test(entropy, D, p.adj = "bonferroni"))
+```
+
+</br>
+
+### Entropy vs. solvent accessibility
+
+\usepackage{siunitx}
+
+Solvent accessibility was calculated by [PISA](https://www.ebi.ac.uk/pdbe/pisa/pi_tips.html) in [CCP4](https://www.ccp4.ac.uk/). It is measured by rolling a water molecule probe of 1.4 \si{\angstrom} in diameter over the surface of the protein and summing the surface area in contact with the probe for each residue on a protein of interest. I input the entire structure, PDB [7nhx](https://www.rcsb.org/structure/7NHX) and obtained the accessible surface area (ASA) for PB1 only.
+
+```{r entropy vs ASA, warning=FALSE, message=FALSE, fig.align='center'}
+ASA <- read_table(paste0(indir, "ASA"), col_names = FALSE)
+
+ASA <- ASA[,c("X3", "X4", "X6", "X7", "X8", "X9")]
+colnames(ASA) <- c("amino.acid", "site", "ASA", "BSA", "dG", "dGi")
+
+entropy_vs_ASA <- inner_join(accurate_entropy, ASA, by = "site")
+
+# Spearman's rank correlation coefficient
+rho_ASA <- cor.test(x=entropy_vs_ASA$ASA, 
+                y=entropy_vs_ASA$entropy, method = 'spearman', exact=FALSE)
+rho_ASA
+rho_ASA$p.value
+
+ggplot(entropy_vs_ASA, aes(x = ASA, y = entropy)) +
+  geom_point() + 
+  annotate("text", x=160, y=3.25, hjust = 0, 
+           label = paste("\u03c1 =", signif(rho_ASA$estimate, digits = 2))) +
+  annotate("text", x=160, y=3, hjust = 0, 
+           label = paste("p-value =", signif(rho_ASA$p.value, digits = 3))) +
+  theme(text = element_text(size=13),
+        axis.text = element_text(size = 13))
+```
+
+Additionally, in the [pdb page for 7NHX](https://www.rcsb.org/sequence/7NHX#B), they marked "buried residues". Using this annotation, I did a categorical analysis and compared the entropy difference between sites that are buried and sites that are exposed or partially exposed.
+
+```{r entropy vs buried, warning=FALSE, message=FALSE, fig.align='center'}
+buried <- read_csv(paste0(indir,"buried.sites.7nhx.csv"))
+entropy_vs_buried <- inner_join(accurate_entropy, buried, by = "site") %>% 
+  filter(buried != "unknown")
+
+ggplot(entropy_vs_buried, aes(x=buried, y=entropy)) +
+  geom_boxplot() +
+  labs(x="Site buried", y="Entropy") +
+  geom_signif(comparisons = list(c("F", "T")), map_signif_level = TRUE,
+              test = "wilcox.test")
+
+wilcox.test(entropy ~ buried, data = entropy_vs_buried)
+```
+
+</br>
+
+### Entropy vs. RMSF
+
+**RMSD and RMSF**
+
+RMSD stands for Root Mean Square Deviation. It is a numerical measurement representing the difference between two structures: in this case a *target structure* that changes overtime and a *reference structure* that is also the starting structure. RMSD is typically plotted vs. time.
+
+RMSF stands for Root Mean Square Fluctuation. It measures similar things to RMSD but is a calculation of individual residue flexibility, or how much a particular residue moves (fluctuates) during a simulation. RMSF per residue is typically plotted vs. residue number, and can indicate structurally which amino acids in a protein contribute the most to a molecular motion.
+
+```{r rmsf readin}
+rmsf_avg <- read_excel(paste0(indir, "rmsf_avg.xlsx"))
+rmsf_calpha <- read_excel(paste0(indir, "rmsf_calpha.xlsx"))
+```
+
+#### RMSF calculated by averaging all atoms at one residue
+
+```{r rmsf_avg, fig.align='center'}
+rmsf_avg <- rmsf_avg %>% 
+  rename_with(~ c("residue", "RMSF"), 1:2) %>% 
+  mutate(subunit = rep(c("PA","PB1","PB2"),times=c(716,756,676)))
+
+ggplot(rmsf_avg, aes(x=subunit, y=RMSF, color=subunit)) +
+  geom_boxplot(outlier.shape=NA) +
+  geom_jitter(shape=19)+
+	scale_color_manual(name=NULL,
+		values=c("#2C293E", "#627D9F", "#D4635C"),
+		breaks=c("PA", "PB1", "PB2"),
+		labels=c("PA", "PB1", "PB2")) +
+	labs(x="Subunit", y="RMSF (nm)")
+```
+
+#### RMSF calculated by C-alpha of each residue
+
+```{r rmsf_calpha, fig.align='center'}
+rmsf_calpha <- rmsf_calpha %>% 
+  rename_with(~ c("residue", "CalphaNum", "RMSF"), 1:3) %>% 
+  mutate(subunit = rep(c("PA","PB1","PB2"),times=c(716,756,676))) %>% 
+  mutate(site = c(1:716, 1:756, 1:676))
+
+ggplot(rmsf_calpha, aes(x=subunit, y=RMSF, color=subunit)) +
+  geom_boxplot(outlier.shape=NA) +
+  geom_jitter(shape=19)+
+	scale_color_manual(name=NULL,
+		values=c("#2C293E", "#627D9F", "#D4635C"),
+		breaks=c("PA", "PB1", "PB2"),
+		labels=c("PA", "PB1", "PB2")) +
+	labs(x="Subunit", y="RMSF (nm)")
+```
+
+#### RMSF_avg vs. entropy
+
+```{r rmsf_avg vs. entropy, fig.align='center'}
+rmsf_vs_ent_avg <- rmsf_avg %>% 
+  filter(subunit == "PB1") %>% 
+  inner_join(accurate_entropy, by = c("residue" = "site"))
+
+# Spearman's rank correlation coefficient
+rho_rmsf_avg <- cor.test(x=rmsf_vs_ent_avg$RMSF, 
+                y=rmsf_vs_ent_avg$entropy, method = 'spearman', exact=FALSE)
+rho_rmsf_avg
+
+ggplot(rmsf_vs_ent_avg, aes(x=RMSF, y=entropy)) +
+  geom_point() + 
+  annotate("text", x=0.05, y=3, hjust = 0, 
+           label = paste("\u03c1 =", signif(rho_rmsf_avg$estimate, digits = 2))) +
+  annotate("text", x=0.05, y=2.7, hjust = 0, 
+           label = paste("p-value =", signif(rho_rmsf_avg$p.value, digits = 3))) +
+  theme(text = element_text(size=13),
+        axis.text = element_text(size = 13))
+```
+
+#### RMSF_calpha vs. entropy
+
+```{r rmsf_calpha vs. entropy, fig.align='center'}
+rmsf_vs_ent_calpha <- rmsf_calpha %>% 
+  filter(subunit == "PB1") %>% 
+  select(-residue) %>% 
+  inner_join(accurate_entropy, by = "site")
+
+# Spearman's rank correlation coefficient
+rho_rmsf_calpha <- cor.test(x=rmsf_vs_ent_calpha$RMSF, 
+                y=rmsf_vs_ent_calpha$entropy, method = 'spearman', exact=FALSE)
+rho_rmsf_calpha
+
+ggplot(rmsf_vs_ent_calpha, aes(x=RMSF, y=entropy)) +
+  geom_point() + 
+  annotate("text", x=0.03, y=3, hjust = 0, 
+           label = paste("\u03c1 =", signif(rho_rmsf_calpha$estimate, digits = 2))) +
+  annotate("text", x=0.03, y=2.7, hjust = 0, 
+           label = paste("p-value =", signif(rho_rmsf_calpha$p.value, digits = 3))) +
+  theme(text = element_text(size=13),
+        axis.text = element_text(size = 13))
+```
+
+</br>
+
+### Entropy and different stages of transcription
+
+- Apoenzyme: 5d9a
+- Template binding 1: 4wsb, 7nhx
+- Template binding 2: 6t0n
+- Cap-snatching: 5m3h
+- Pre-initiation: 6rr7
+- Mixed pre-initiation: 6qcw
+- Mixed pre-catalysis: 6qcv
+- Mixed post-incorporation: 6qcx, 6t0v
+- Elongation: 6szv
+- Termination: 6szu
+
+There are three types of RNA binding to the polymerase: 3'vRNA, 5'vRNA, and mRNA (capped). I'll discuss the interaction with them separately.
+
+```{r transcription interaction, fig.align='center'}
+trans_int <- read.csv(paste0(indir, "transcription.interaction.csv")) %>% 
+  rename_with(~ 'PDB', 1)
+
+vRNA3 <- sort(unique(filter(trans_int, RNA.type == "3'vRNA")$PB1.residues))
+vRNA5 <- sort(unique(filter(trans_int, RNA.type == "5'vRNA")$PB1.residues))
+mRNA <- sort(unique(filter(trans_int, RNA.type == "capped mRNA")$PB1.residues))
+
+RNA_int_ent <- entropy %>% 
+  mutate(vRNA3.int = ifelse(site %in% vRNA3, T, F),
+         vRNA5.int = ifelse(site %in% vRNA5, T, F),
+         mRNA.int = ifelse(site %in% mRNA, T, F))
+
+RNA_int_ent_long <- RNA_int_ent %>% 
+  pivot_longer(
+    cols = 4:6, 
+    names_to = "interaction",
+    values_to = "T.or.F"
+)
+
+RNA_int_ent_long$interaction <- gsub('.{4}$', '', RNA_int_ent_long$interaction)
+
+entropy_vs_int_plt <- ggplot(RNA_int_ent_long, aes(x = interaction, y = entropy)) +
+  geom_boxplot(aes(fill = T.or.F), position = position_dodge(0.9)) +
+  scale_fill_manual(values = c(palette[2], palette[3])) +
+  labs(x="", y="Entropy", fill = "Interaction") +
+  geom_signif(
+    y_position = c(3, 3, 3), xmin = c(0.75, 1.75, 2.75), xmax = c(1.25, 2.5, 3.25),
+    annotation = c("*", "**", "NS"), tip_length = 0) +
+  ylim(0,3.5)
+
+entropy_vs_int_plt
+
+# statistics using unpaired Two-Samples Wilcoxon Test (comparing the means of two independent groups (non-parametric))
+wilcox.test(entropy ~ vRNA3.int, data = RNA_int_ent)
+wilcox.test(entropy ~ vRNA5.int, data = RNA_int_ent)
+wilcox.test(entropy ~ mRNA.int, data = RNA_int_ent)
+```
+
+</br>
+
+### What amino acids were allowed in interactions
+
+**with 3'vRNA**
+
+```{r vRNA3 logo, warning=FALSE, message=FALSE, fig.height=5, fig.width=25}
+vRNA3_logo <- get_logo_mat(vRNA3, entropy_calculation)
+vRNA3_wt <- entropy_calculation %>% 
+  filter(site %in% vRNA3) %>% 
+  mutate(mutation.wt = substr(gsub('\\d','', mutation), 1, 3)) %>% 
+  group_by(site) %>% 
+  summarize(wt = aa321(toupper(unique(mutation.wt))))
+
+ggplot() +
+  geom_logo(vRNA3_logo, method = "prob", seq_type ='aa', stack_width = 0.90,
+            namespace = "XACDEFGHIKLMNPQRSTVWY", col_scheme='chemistry') + 
+  scale_y_continuous(breaks=c(0.00,0.25,0.50,0.75, 1.00)) +
+  annotate('text', x = 1:54, y = 1.2, label = vRNA3_wt$wt) +
+  scale_x_continuous(breaks=1:54, labels = colnames(vRNA3_logo)) +
+  xlab("Site") +
+  theme_logo() +
+  theme(axis.text.x=element_text(angle = 90, hjust = 0))
+```
+
+**with 5'vRNA**
+
+```{r vRNA5 logo, warning=FALSE, message=FALSE, fig.height=5, fig.width=25}
+vRNA5_logo <- get_logo_mat(vRNA5, entropy_calculation)
+vRNA5_wt <- entropy_calculation %>% 
+  filter(site %in% vRNA5) %>% 
+  mutate(mutation.wt = substr(gsub('\\d','', mutation), 1, 3)) %>% 
+  group_by(site) %>% 
+  summarize(wt = aa321(toupper(unique(mutation.wt))))
+
+ggplot() +
+  geom_logo(vRNA5_logo, method = "prob", seq_type ='aa', stack_width = 0.90,
+            namespace = "XACDEFGHIKLMNPQRSTVWY", col_scheme='chemistry') + 
+  scale_y_continuous(breaks=c(0.00,0.25,0.50,0.75, 1.00)) +
+  annotate('text', x = 1:70, y = 1.2, label = vRNA5_wt$wt) +
+  scale_x_continuous(breaks=1:70, labels = colnames(vRNA5_logo)) +
+  xlab("Site") +
+  theme_logo() +
+  theme(axis.text.x=element_text(angle = 90, hjust = 0))
+```
+
+**with mRNA**
+
+```{r mRNA logo, warning=FALSE, message=FALSE, fig.align='center', fig.height=5, fig.width=25}
+mRNA_logo <- get_logo_mat(mRNA, entropy_calculation)
+mRNA_wt <- entropy_calculation %>% 
+  filter(site %in% mRNA) %>% 
+  mutate(mutation.wt = substr(gsub('\\d','', mutation), 1, 3)) %>% 
+  group_by(site) %>% 
+  summarize(wt = aa321(toupper(unique(mutation.wt))))
+
+ggplot() +
+  geom_logo(mRNA_logo, method = "prob", seq_type ='aa', stack_width = 0.90,
+            namespace = "XACDEFGHIKLMNPQRSTVWY", col_scheme='chemistry') + 
+  scale_y_continuous(breaks=c(0.00,0.25,0.50,0.75, 1.00)) +
+  annotate('text', x = 1:37, y = 1.2, label = mRNA_wt$wt) +
+  scale_x_continuous(breaks=1:37, labels = colnames(mRNA_logo)) +
+  xlab("Site") +
+  theme_logo() +
+  theme(axis.text.x=element_text(angle = 90, hjust = 0))
+```
+
+**in motif c**
+```{r motif c logo, warning=FALSE, message=FALSE, fig.align='center', fig.height=3, fig.width=10}
+motif_c_logo <- get_logo_mat(436:449, entropy_calculation)
+# motif C containing active sites
+# ggseqlogo(logomatrix, method = "prob", seq_type ='aa')
+ggplot() +
+  geom_logo(motif_c_logo, method = "prob", seq_type ='aa', stack_width = 0.90, 
+            namespace = "XACDEFGHIKLMNPQRSTVWY", col_scheme='chemistry') + 
+  annotate('text', x = 1:14, y = 1.2, label = c('Y', 'W', 'W', 'D', 'G', 'L', 'Q', 
+                                                'S', 'S', 'D', 'D', 'F', 'A', 'L')) +
+  scale_x_continuous(breaks=1:14, labels = colnames(motif_c_logo)) +
+  xlab("Site") +
+  theme_logo()
+```
+
+</br>
+
+# Comparing to naturally ocurring sequences
+
+Finally, we want to compare the entropy obtained from deep mutational scanning to the diversity of naturally occurring IAV H1N1 PB1 sequences. I searched and downloaded sequences from [GISAID](https://gisaid.org/). Since we believe there was a sweeping evolutionary event during 2009 flu season, I divided the sequences into two subsets. Accroding to CDC's [timeline](https://www.cdc.gov/flu/pandemic-resources/2009-pandemic-timeline.html), I divided the sequences into:
+
+-   pre09strains: collected before Apr.15, 2009
+-   post09strains: collected after Aug.11, 2010
+
+Sequences were filtered with the following criteria before downloading:
+
+- type A influenza
+- H1N1
+- human host
+- required segment PB1 to be at least 757 amino-acid-long
+
+When downloading the sequences:
+
+- downloaded amino acid sequences (PB1) in fasta form
+- sequence names were "Isolate_ID" (the unique names also show up in metadata)
+- downloaded the corresponding metadata
+
+I aligned them with [mafft](https://mafft.cbrc.jp/alignment/software/) on Greatlakes, using following code:
+
+```{r engine='bash', eval=FALSE}
+module load Bioinformatics
+module load mafft
+
+mafft --amino --anysymbol --6merpair --thread -1 --nomemsave --keeplength --addfragments AAsequencesCorrect/pre09AAnew.fasta PB1_reference_AA_orfonly > AAsequencesCorrect/pre09AAalignment_correct.fasta
+
+mafft --amino --anysymbol --6merpair --thread -1 --nomemsave --keeplength --addfragments AAsequencesCorrect/post09AAnew.fasta PB1_reference_AA_orfonly > AAsequencesCorrect/post09AAalignment_correct.fasta
+```
+
+in which 
+
+- sequence type (protein / nucleotide) is automatically recognized based on the frequency of a, t, g, c, and u, unless the --amino or --nuc flag is given
+- flag `--nomemsave` ensures the program to run efficiently
+- flag `--addfragments` is a syntax for the sequences to align to a reference rather than each other
+- and flag `--anysymbol` allows any characters to appear for a residue, which comes in handy for unified representation for ambiguous amino acids.
+
+In *Report v1.0*, the Shannon diversity of naturally ocurring sequences were not weighted based on sampling, therefore the sequences from years (more recent years) that got sampled more frequently will influence more on the diversity of library. In this report, I employed and modified the code Sarah wrote for *MI* to adjust for the sampling bias.
+
+**Metadata read in**
+
+```{r metadata readin, warning=FALSE}
+pre09AAmetadata <- read_excel(paste0(indir, "pre09AAnewmetadata.xls")) %>% 
+  select(Isolate_Id, Isolate_Name, Passage_History, Host, Collection_Date) %>% 
+  mutate(group = substr(Collection_Date, 1, 4)) %>% 
+  filter(!str_detect(Passage_History, "egg|Egg|E[0-9]|AM|Am|E|e4|chicken") |
+         is.na(Passage_History))
+
+post09AAmetadata1 <- read_excel(paste0(indir, "post09AAnewmetadata1.xls")) %>% 
+  select(Isolate_Id, Isolate_Name, Passage_History, Host, Collection_Date)
+post09AAmetadata2 <- read_excel(paste0(indir, "post09AAnewmetadata2.xls")) %>% 
+  select(Isolate_Id, Isolate_Name, Passage_History, Host, Collection_Date)
+
+post09AAmetadata <- rbind(post09AAmetadata1, post09AAmetadata2) %>% 
+  mutate(group = substr(Collection_Date, 1, 4)) %>% 
+  filter(!str_detect(Passage_History, "egg|Egg|E[0-9]|AM|Am|E|e4|chicken") |
+           is.na(Passage_History))
+```
+
+**Aligned fasta read in**
+
+```{r aligned AA fasta readin}
+aa_mat_pre09 <- readMSA(paste0(indir, "pre09AAalignment_correct.fasta"))
+aa_mat_post09 <- readMSA(paste0(indir, "post09AAalignment_correct.fasta"))
+```
+
+There are 1656 sequences in `aa_mat_pre09` and 35980 sequences in `aa_mat_post09`. The first row is the provided reference sequence (WSN33 wildtype). Each column is a residue, therefore there are 758 columns in the matrices.
+
+**Remove incomplete sequences**
+
+```{r}
+rm_rule <- function(input_matrix){
+  sum(grepl('-', input_matrix)) > 0
+}
+
+aa_mat_pre09_complete <- aa_mat_pre09[ ,-758]
+aa_mat_post09_complete <- aa_mat_post09[ ,-758]
+
+# df[!apply(df, 1, rm_rule), ]
+aa_mat_pre09_complete <- aa_mat_pre09_complete[!apply(aa_mat_pre09_complete, 1, rm_rule), ]
+aa_mat_post09_complete <- aa_mat_post09_complete[!apply(aa_mat_post09_complete, 1, rm_rule), ]
+```
+
+**Find year of sequences with metadata**
+
+```{r match}
+df_pre09 <- tibble(Isolate_Id = rownames(aa_mat_pre09_complete)) %>% 
+  inner_join(pre09AAmetadata, by = "Isolate_Id") %>% 
+  select(Isolate_Id, group)
+
+df_post09 <- tibble(Isolate_Id = rownames(aa_mat_post09_complete)) %>% 
+  inner_join(post09AAmetadata, by = "Isolate_Id") %>% 
+  select(Isolate_Id, group)
+```
+
+**Calculate Shannon diversity for each residue**
+
+```{r calc shannon}
+shannon_diversity_pre09 <- get_ent_all_sites(aa_mat_pre09_complete, df_pre09)
+shannon_diversity_post09 <- get_ent_all_sites(aa_mat_post09_complete, df_post09)
+
+nat_shannon <- tibble(site = c(1:757),
+             pre09 = shannon_diversity_pre09,
+             post09 = shannon_diversity_post09) %>% 
+  pivot_longer(-site, names_to = "year", values_to = "shannon.diversity")
+```
+
+```{r}
+nat_shannon_wide <- tibble(site = c(1:757),
+             pre09 = shannon_diversity_pre09,
+             post09 = shannon_diversity_post09)
+
+sum(nat_shannon_wide[2] == 0)
+sum(nat_shannon_wide[3] == 0)
+```
+
+**Plot Shannon diversity, compare between pre- and post-2009**
+
+```{r nat seq plot, fig.align='center'}
+ggplot(nat_shannon, aes(x=as.factor(site), y=shannon.diversity, color = year)) +
+  geom_point(shape=19, size=1) +
+  scale_color_manual(name=NULL,
+		values=c("#5698c3", "#f0a1a8"),
+		breaks=c("pre09", "post09"),
+		labels=c("pre09", "post09")) +
+  theme(axis.text.x = element_text(angle = 60, hjust = 0.5, vjust = 0.5), 
+        plot.title = element_text(hjust = 0.5),
+        legend.position = "right") +
+  scale_x_discrete(breaks = every_nth(n = 10)) +
+  labs(x="Site", y="Shannon Diversity", 
+       title = "Diversity in naturally ocurring sequences")
+```
+
+**Compare entropy in naturally occurring sequences and DMS**
+
+```{r compare nat-dms, fig.align='center'}
+natural_vs_dms <- tibble(site = c(1:757),
+             pre09 = shannon_diversity_pre09,
+             post09 = shannon_diversity_post09) %>% 
+  full_join(entropy[-758,c(1,2)], by = "site") %>% 
+  rename("dms" = entropy)
+
+# pre09
+rho_pre09 <- cor.test(x=natural_vs_dms$pre09, 
+                y=natural_vs_dms$dms, method = 'spearman', exact=FALSE)
+rho_pre09
+
+ggplot(natural_vs_dms, aes(x=pre09, y=dms)) +
+  geom_point(shape=19, size=1) + 
+  stat_cor(method = "spearman", cor.coef.name = "rho", 
+           label.x = 1, label.y = 3) +
+  theme(text = element_text(size=13),
+        axis.text = element_text(size = 13))
+
+# post09
+rho_post09 <- cor.test(x=natural_vs_dms$post09, 
+                y=natural_vs_dms$dms, method = 'spearman', exact=FALSE)
+rho_post09
+
+ggplot(natural_vs_dms, aes(x=post09, y=dms)) +
+  geom_point(shape=19, size=1) + 
+  stat_cor(method = "spearman", cor.coef.name = "rho", 
+           label.x = 0.5, label.y = 3) +
+  theme(text = element_text(size=13),
+        axis.text = element_text(size = 13))
+```
+
+# Accessibility of beneficial mutations
+
+First, calculate the minimum nucleotide changes from one amino acid to another (including stop). There are $A_{21}^2 = 420$ changes possible. The following code makes such table.
+
+```{r calc distance}
+aa_comb <- combn(unique(codons$aa), 2)
+
+min_diff_set <- data.frame()
+for (i in 1:dim(aa_comb)[2]){
+  str1 <- pull(filter(codons, aa == aa_comb[,i][1]), codon)
+  str2 <- pull(filter(codons, aa == aa_comb[,i][2]), codon)
+  
+  min_codon_diff <- min(compare_str(str1,str2)$CodonDiff)
+  
+  vector <- c(aa_comb[,i][1], aa_comb[,i][2], min_codon_diff)
+  min_diff_set <- rbind(min_diff_set, vector)
+  colnames(min_diff_set) <- c("AA1", "AA2", "MinCodonDiff")
+}
+
+min_diff_set_rev <- tibble(min_diff_set$AA2, min_diff_set$AA1, 
+                           min_diff_set$MinCodonDiff)
+colnames(min_diff_set_rev) <- c("AA1", "AA2", "MinCodonDiff")
+min_codon_distance <- rbind(min_diff_set, min_diff_set_rev)
+```
+
+Then I examined the mutations with z-score greater than 2 on the beneficial side - how many nucleotide change the wild type needs to make to become the target amino acid. All beneficial mutations require 1 or 2 nucleotide changes.
+
+```{r, warning=FALSE, fig.align='center'}
+benemut3 <- benemut2[order(benemut2$zscore, decreasing = T),] %>% 
+  select(site, amplicon, mutation, mutation.type, avg.fitness, zscore)
+
+benemut3_codon_distance <- benemut3 %>% 
+  mutate(wt = substr(mutation, 1, 3)) %>% 
+  mutate(mt = str_sub(mutation, -3, -1)) %>% 
+  left_join(min_codon_distance, by = c("wt"="AA1", "mt"="AA2")) %>% 
+  select(site, amplicon, mutation, avg.fitness, zscore, MinCodonDiff) %>% 
+  mutate(bin = case_when(zscore > 2 ~ ">2",
+                         T ~ "<=2"))
+
+ggplot(benemut3_codon_distance, aes(x=fct_reorder(bin, as.integer(zscore)), 
+                                    y=as.numeric(MinCodonDiff))) +
+  geom_violin(fill="#69b3a2") +
+  # geom_dotplot(binaxis = "y", stackdir = "center", position = "stack", 
+  #              binwidth = 0.25, dotsize=0.05) +
+  xlab("Z-score") +
+  ylab("Minimum nucleotide difference")
+
+# Kolmogorov–Smirnov test: non-parametric, to test whether two samples follow the same distribution using using CDF.
+ks.test(as.numeric(filter(benemut3_codon_distance, bin == ">2")$MinCodonDiff),
+        as.numeric(filter(benemut3_codon_distance, bin == "<=2")$MinCodonDiff))$p.value
+```
+
+## Have beneficial mutations appeared in naturally occurring sequences?
+
+Since there is a gap in pre- and post-09 groups. I will read in new data for this section. The new data is basically the entire natural PB1 records on GISAID up to 2023, without a gap. I also aligned the sequences to the wild type WSN33 PB1 as described in the previous section.
+
+**Full set metadata read in**
+
+```{r full set metadata readin, warning=FALSE}
+nat_metadata1 <- read_excel(paste0(indir, "all.pre09metadata.xls")) %>% 
+  select(Isolate_Id, Isolate_Name, Passage_History, Host, Collection_Date)
+nat_metadata2 <- read_excel(paste0(indir, "all.09to18metadata.xls")) %>% 
+  select(Isolate_Id, Isolate_Name, Passage_History, Host, Collection_Date)
+nat_metadata3 <- read_excel(paste0(indir, "all.19to23metadata.xls")) %>% 
+  select(Isolate_Id, Isolate_Name, Passage_History, Host, Collection_Date)
+
+nat_metadata <- rbind(nat_metadata1, nat_metadata2, nat_metadata3) %>% 
+  mutate(group = substr(Collection_Date, 1, 4)) %>% 
+  filter(!str_detect(Passage_History, "egg|Egg|E[0-9]|AM|Am|E|e4|chicken") |
+           is.na(Passage_History))
+```
+
+**Full set aligned fasta read in**
+```{r full set aligned AA fasta readin}
+nat_aa_seq <- readMSA(paste0(indir, "alltimeH1N1AAalignment.fasta"))
+```
+
+
+
+```{r}
+nat_aa <- data.frame(Isolate_Id = row.names(nat_aa_seq), nat_aa_seq) %>% 
+  inner_join(nat_metadata, by = "Isolate_Id")
+
+benemut4 <- benemut3 %>% 
+  filter(zscore >2) %>% 
+  mutate(wt = substr(mutation, 1, 3)) %>% 
+  mutate(mt = str_sub(mutation, -3, -1)) %>% 
+  left_join(min_codon_distance, by = c("wt"="AA1", "mt"="AA2")) %>% 
+  mutate(wt = aa321(toupper(wt)),
+         mt = aa321(toupper(mt)))
+```
+
+</br>
+
+### Site 108
+```{r}
+# beneficial mutations at that site
+benemut4[which(benemut4$site == 108), ]$mt
+# naturally occurred mutations at that site
+unique(nat_aa$X108)
+# compare
+benemut4[which(benemut4$site == 108), ]$mt %in% unique(nat_aa$X108)
+# if the beneficial mutation has appeared, when?
+nat_aa[which(nat_aa$X108 == "R"), ] %>% 
+  select(colnames(nat_metadata))
+# how frequently did the mutation happen?
+filter(nat_aa, group %in% c(2016,2023)) %>% 
+  group_by(group) %>% 
+  select(X108) %>% 
+  table()
+```
+
+In WSN33, the wildtype at site 108 is *L (Leu)*, but both *I (Ile)* and *L* existed at site 108 before 2009. From the data between 1995 and 2008, *I* might be the dominant amino acid. After 2009, *L* became the dominant amino acid. The minimum nucleotide changes for *L* and *I* to become *Y* are both 2. The minimum nucleotide changes for *L* and *I* to become *R* are both 1.
+
+</br>
+
+### Site 647
+```{r}
+# beneficial mutations at that site
+benemut4[which(benemut4$site == 647), ]$mt
+# naturally occurred mutations at that site
+unique(nat_aa$X647)
+# compare
+benemut4[which(benemut4$site == 647), ]$mt %in% unique(nat_aa$X647)
+```
+
+</br>
+
+### Site 577
+```{r}
+# beneficial mutations at that site
+benemut4[which(benemut4$site == 577), ]$mt
+# naturally occurred mutations at that site
+unique(nat_aa$X577)
+# compare
+benemut4[which(benemut4$site == 577), ]$mt %in% unique(nat_aa$X577)
+# if the beneficial mutation has appeared, when?
+nat_aa[which(nat_aa$X577 == "Q"), ] %>% 
+  select(colnames(nat_metadata))
+# how frequently did the mutation happen?
+filter(nat_aa, group == 2009) %>% 
+  select(X577) %>% 
+  table()
+```
+
+</br>
+
+### Site 255
+```{r}
+# beneficial mutations at that site
+benemut4[which(benemut4$site == 255), ]$mt
+# naturally occurred mutations at that site
+unique(nat_aa$X255)
+# compare
+benemut4[which(benemut4$site == 255), ]$mt %in% unique(nat_aa$X255)
+# if the beneficial mutation has appeared, when?
+nat_aa[which(nat_aa$X255 == "A"), ] %>% 
+  select(colnames(nat_metadata))
+# how frequently did the mutation happen?
+filter(nat_aa, group %in% c(2009,2015,2020,2022)) %>% 
+  group_by(group) %>% 
+  select(X255) %>% 
+  table()
+```
+
+The mutation happened relatively often but didn't rise to 0.1%.
+
+</br>
+
+### Site 744
+```{r}
+# beneficial mutations at that site
+benemut4[which(benemut4$site == 744), ]$mt
+# naturally occurred mutations at that site
+unique(nat_aa$X744)
+# compare
+benemut4[which(benemut4$site == 744), ]$mt %in% unique(nat_aa$X744)
+# if the beneficial mutation has appeared, when?
+nat_aa[which(nat_aa$X744 == "A"), ] %>% 
+  select(colnames(nat_metadata))
+# how frequently did the mutation happen?
+filter(nat_aa, group %in% c(2013,2019,2023)) %>% 
+  group_by(group) %>% 
+  select(X744) %>% 
+  table()
+```
+
+</br>
+
+### Site 116
+```{r}
+# beneficial mutations at that site
+benemut4[which(benemut4$site == 116), ]$mt
+# naturally occurred mutations at that site
+unique(nat_aa$X116)
+# compare
+benemut4[which(benemut4$site == 116), ]$mt %in% unique(nat_aa$X116)
+# if the beneficial mutation has appeared, when?
+nat_aa[which(nat_aa$X116 == "V"), ] %>% 
+  select(colnames(nat_metadata))
+# how frequently did the mutation happen?
+filter(nat_aa, group %in% c(2018)) %>% 
+  group_by(group) %>% 
+  select(X116) %>% 
+  table()
+```
+
+</br>
+
+### Site 691
+```{r, warning=FALSE, fig.align='center'}
+# beneficial mutations at that site
+benemut4[which(benemut4$site == 691), ]$mt
+# naturally occurred mutations at that site
+unique(nat_aa$X691)
+# compare
+benemut4[which(benemut4$site == 691), ]$mt %in% unique(nat_aa$X691)
+# if the beneficial mutation has appeared, when?
+nat_aa[which(nat_aa$X691 == "R"), ] %>% 
+  select(colnames(nat_metadata)) -> sp
+unique(sp$group)
+# how frequently did the mutation happen?
+freq691 <- filter(nat_aa, group %in% unique(sp$group)) %>% 
+  group_by(group) %>% 
+  select(X691) %>% 
+  table()
+
+freq691
+
+# I examined "-" in site 691
+exam_complete_691 <- nat_aa[which(nat_aa$X691 == "-"), ]
+head(exam_complete_691[, 688:701])
+# "-" in site 691 is not caused by deletion but by incomplete sequences, therefore, "-" should not be counted as a level or calculated in frequency
+# I removed column "-" in the matrix "freq691"
+freq691_complete <- freq691[,colnames(freq691)!="-"]
+
+freq691_long <- as.data.frame(freq691_complete) %>% 
+  group_by(group) %>% 
+  mutate(perc = Freq/sum(Freq))
+
+ggplot(freq691_long, aes(x = as.numeric(as.character(group)), 
+                         y = perc, fill = X691, color = X691)) +
+    geom_area(alpha = 0.5) +
+    scale_fill_manual(values = palette_691) +
+    scale_color_manual(values = palette_691) +
+    scale_y_continuous(breaks = c(0, 0.5, 1.0)) +
+    theme_minimal() +
+    labs(x = "Year", y = "Frequency" ) +
+    theme(text = element_text(size = 12), legend.position="none")
+```
+
+Although *K (Lys)* is the wildtype in WSN33, *R (Arg)* seemed to be the more dominant amino acid before 2009, which means this mutation is likely to be a real beneficial one and actually happened in nature. At 2009, there was an evolutionary sweep that made *K* the dominant amino acid till now.
+
+</br>
+
+### Site 679
+```{r}
+# beneficial mutations at that site
+benemut4[which(benemut4$site == 679), ]$mt
+# naturally occurred mutations at that site
+unique(nat_aa$X679)
+# compare
+benemut4[which(benemut4$site == 679), ]$mt %in% unique(nat_aa$X679)
+```
+
+</br>
+
+### Site 510
+```{r}
+# beneficial mutations at that site
+benemut4[which(benemut4$site == 510), ]$mt
+# naturally occurred mutations at that site
+unique(nat_aa$X510)
+# compare
+benemut4[which(benemut4$site == 510), ]$mt %in% unique(nat_aa$X510)
+```
+
+</br>
+
+### Site 151
+```{r}
+# beneficial mutations at that site
+benemut4[which(benemut4$site == 151), ]$mt
+# naturally occurred mutations at that site
+unique(nat_aa$X151)
+# compare
+benemut4[which(benemut4$site == 151), ]$mt %in% unique(nat_aa$X151)
+```
+
+</br>
+
+### Site 164
+```{r}
+# beneficial mutations at that site
+benemut4[which(benemut4$site == 164), ]$mt
+# naturally occurred mutations at that site
+unique(nat_aa$X164)
+# compare
+benemut4[which(benemut4$site == 164), ]$mt %in% unique(nat_aa$X164)
+# if the beneficial mutation has appeared, when?
+nat_aa[which(nat_aa$X164 == "L"), ] %>% 
+  select(colnames(nat_metadata))
+# how frequently did the mutation happen?
+filter(nat_aa, group %in% c(2009,2016)) %>% 
+  group_by(group) %>% 
+  select(X164) %>% 
+  table()
+```
+
+</br>
+
+### Site 351
+```{r}
+# beneficial mutations at that site
+benemut4[which(benemut4$site == 351), ]$mt
+# naturally occurred mutations at that site
+unique(nat_aa$X351)
+# compare
+benemut4[which(benemut4$site == 351), ]$mt %in% unique(nat_aa$X351)
+```
+
+</br>
+
+### Site 105
+```{r}
+# beneficial mutations at that site
+benemut4[which(benemut4$site == 105), ]$mt
+# naturally occurred mutations at that site
+unique(nat_aa$X105)
+# compare
+benemut4[which(benemut4$site == 105), ]$mt %in% unique(nat_aa$X105)
+```
+
+The wildtype at site 105 seem to be *N (Asn)* rather than *T (Thr)* (which was the case for WSN33), although T was found in both early (1932, 1933) and late (2019, 2020) years. $Min_{T \rightarrow R} = 1$, $Min_{N \rightarrow R} = 2$, which might be a reason why mutation R (Arg) was not observed.
+
+</br>
+
+### Site 323
+```{r}
+# beneficial mutations at that site
+benemut4[which(benemut4$site == 323), ]$mt
+# naturally occurred mutations at that site
+unique(nat_aa$X323)
+# compare
+benemut4[which(benemut4$site == 323), ]$mt %in% unique(nat_aa$X323)
+# if the beneficial mutation has appeared, when?
+nat_aa[which(nat_aa$X323 == "M"), ] %>% 
+  select(colnames(nat_metadata))
+# how frequently did the mutation happen?
+filter(nat_aa, group %in% c(2020)) %>% 
+  group_by(group) %>% 
+  select(X323) %>% 
+  table()
+```
+
+The mutation happened recently and rose to 0.1%.
+
+</br>
+
+### Site 701
+```{r}
+# beneficial mutations at that site
+benemut4[which(benemut4$site == 701), ]$mt
+# naturally occurred mutations at that site
+unique(nat_aa$X701)
+# compare
+benemut4[which(benemut4$site == 701), ]$mt %in% unique(nat_aa$X701)
+# if the beneficial mutation has appeared, when?
+nat_aa[which(nat_aa$X701 == "L"), ] %>% 
+  select(colnames(nat_metadata))
+# how frequently did the mutation happen?
+filter(nat_aa, group %in% c(2022)) %>% 
+  group_by(group) %>% 
+  select(X701) %>% 
+  table()
+```
+
+</br>
+
+### Site 261
+```{r}
+# beneficial mutations at that site
+benemut4[which(benemut4$site == 261), ]$mt
+# naturally occurred mutations at that site
+unique(nat_aa$X261)
+# compare
+benemut4[which(benemut4$site == 261), ]$mt %in% unique(nat_aa$X261)
+```
+
+</br>
+
+### Site 317
+```{r}
+# beneficial mutations at that site
+benemut4[which(benemut4$site == 317), ]$mt
+# naturally occurred mutations at that site
+unique(nat_aa$X317)
+# compare
+benemut4[which(benemut4$site == 317), ]$mt %in% unique(nat_aa$X317)
+# if the beneficial mutation has appeared, when?
+nat_aa[which(nat_aa$X317 == "V"), ] %>% 
+  select(colnames(nat_metadata)) -> sp
+unique(sp$group)
+# how frequently did the mutation happen?
+filter(nat_aa, group %in% unique(sp$group)) %>% 
+  group_by(group) %>% 
+  select(X317) %>% 
+  table()
+```
+
+The mutation seemed to happen after 2009, and in some years rose to > 0.1%.
+
+</br>
+
+### Site 646
+```{r}
+# beneficial mutations at that site
+benemut4[which(benemut4$site == 646), ]$mt
+# naturally occurred mutations at that site
+unique(nat_aa$X646)
+# compare
+benemut4[which(benemut4$site == 646), ]$mt %in% unique(nat_aa$X646)
+```
+
+</br>
+
+### Site 674
+```{r}
+# beneficial mutations at that site
+benemut4[which(benemut4$site == 674), ]$mt
+# naturally occurred mutations at that site
+unique(nat_aa$X674)
+# compare
+benemut4[which(benemut4$site == 674), ]$mt %in% unique(nat_aa$X674)
+# if the beneficial mutation has appeared, when?
+nat_aa[which(nat_aa$X674 == "L"), ] %>% 
+  select(colnames(nat_metadata))
+# how frequently did the mutation happen?
+filter(nat_aa, group %in% c(2022)) %>% 
+  group_by(group) %>% 
+  select(X674) %>% 
+  table()
+```
+
+</br>
+
+### Site 578
+```{r}
+# beneficial mutations at that site
+benemut4[which(benemut4$site == 578), ]$mt
+# naturally occurred mutations at that site
+unique(nat_aa$X578)
+# compare
+benemut4[which(benemut4$site == 578), ]$mt %in% unique(nat_aa$X578)
+# if the beneficial mutation has appeared, when?
+nat_aa[which(nat_aa$X578 == "T"), ] %>% 
+  select(colnames(nat_metadata))
+# how frequently did the mutation happen?
+filter(nat_aa, group %in% c(2022)) %>% 
+  group_by(group) %>% 
+  select(X578) %>% 
+  table()
+```
+
+</br>
+
+### Site 653
+```{r}
+# beneficial mutations at that site
+benemut4[which(benemut4$site == 653), ]$mt
+# naturally occurred mutations at that site
+unique(nat_aa$X653)
+# compare
+benemut4[which(benemut4$site == 653), ]$mt %in% unique(nat_aa$X653)
+# if the beneficial mutation has appeared, when?
+nat_aa[which(nat_aa$X653 == "R"), ] %>% 
+  select(colnames(nat_metadata)) -> sp
+unique(sp$group)
+# how frequently did the mutation happen?
+filter(nat_aa, group %in% unique(sp$group)) %>% 
+  group_by(group) %>% 
+  select(X653) %>% 
+  table()
+```
+The mutation happened many times between 2006 and 2023, sometimes rose above 0.1%.
+
+</br>
+
+### Site 637
+```{r}
+# beneficial mutations at that site
+benemut4[which(benemut4$site == 637), ]$mt
+# naturally occurred mutations at that site
+unique(nat_aa$X637)
+# compare
+benemut4[which(benemut4$site == 637), ]$mt %in% unique(nat_aa$X637)
+# if the beneficial mutation has appeared, when?
+nat_aa[which(nat_aa$X637 == "V"), ] %>% 
+  select(colnames(nat_metadata)) -> sp
+unique(sp$group)
+# how frequently did the mutation happen?
+filter(nat_aa, group %in% unique(sp$group)) %>% 
+  group_by(group) %>% 
+  select(X637) %>% 
+  table()
+```
+
+This is a mutation that happened after 2007. It almost happened every year, and frequently rises above 0.1%.
+
+</br>
+
+### Site 654
+```{r}
+# beneficial mutations at that site
+benemut4[which(benemut4$site == 654), ]$mt
+# naturally occurred mutations at that site
+unique(nat_aa$X654)
+# compare
+benemut4[which(benemut4$site == 654), ]$mt %in% unique(nat_aa$X654)
+```
+
+The wildtype at site 654 was *N (Asn)* before 2009 and became *S (Ser)* after 2009. In WSN33 it was N as well. $Min_{N \rightarrow D} = 1$, $Min_{S \rightarrow D} = 2$. It became more difficult for the mutation to appear after 2009.
+
+</br>
+
+## Minimum nucleotide changes in codon vs. natural occurrance
+
+```{r access by nat, warning=FALSE, fig.align='center'}
+benemut4 <- benemut4 %>% 
+  mutate(real.MinCodonDiff = ifelse(site %in% c(105, 654), 2, as.numeric(MinCodonDiff))) %>% 
+  mutate(appeared = case_when(mutation %in% c("Leu108Arg", "Lys577Gln", "Val255Ala", "Met744Ala", "Gln116Val", "Lys691Arg", "Ile164Leu", "Thr323Met", "Pro701Leu", "Met317Val", "Ile674Leu", "Lys578Thr", "Lys653Arg", "Ile637Val") ~ "yes", 
+                              mutation %in% c("Leu108Tyr", "Pro647Asn", "Val255Ser", "Val255Thr", "Gln116Met", "Gln116Thr", "Gln679Asn", "Pro510Ala", "Pro510Gly", "Arg151Leu", "Leu351Arg", "Thr105Arg", "Ser261Phe", "Met646Ala", "Asn654Asp") ~ "no",
+                              T ~ "error"))
+
+ggplot(benemut4, aes(x=appeared, y=real.MinCodonDiff)) +
+  geom_violin(fill="#69b3a2") +
+  geom_dotplot(binaxis = "y", stackdir = "center", 
+               binwidth = 1, dotsize=0.05) +
+  xlab("Naturally occurred") +
+  ylab("Minimum nucleotide difference")
+
+# Kolmogorov–Smirnov test: non-parametric, to test whether two samples follow the same distribution using using CDF.
+ks.test(as.numeric(filter(benemut4, appeared == "yes")$MinCodonDiff),
+        as.numeric(filter(benemut4, appeared == "no")$MinCodonDiff))$p.value
+```

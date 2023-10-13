@@ -16,7 +16,7 @@ library(ggsignif)
 library(ggh4x)
 
 ############################## func 1 ###################################
-# to check mutational frequency in files Rep0/1/2 P0/4, where there is a spike ~ 570 nt
+# to check mutational frequency in files Rep1/2/3 P0/4, where there is a spike ~ 570 nt
 mutfreq <- function(filename){
   mut_freq <- read_csv(paste0(filedir,filename,"_codoncounts.csv")) %>% 
     filter(site > 550 & site <600) %>%
@@ -166,7 +166,7 @@ get_counts <- function(filename){
 
 ############################## func 5 ###################################
 # used for amino acid preference calculation
-# examples input: "Rep0Pla"
+# examples input: "Rep1Pla"
 read_counts <- function(filename){
   counts <- read_csv(paste0(filedir, filename, "_codoncounts.csv")) %>%
     left_join(amplicon, by = "site") %>% 

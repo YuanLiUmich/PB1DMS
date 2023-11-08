@@ -1,0 +1,15 @@
+name,R1
+Rep1Pla,S1_R1.fastq.gz
+Rep1P0,S2_R1.fastq.gz
+Rep1P1,S3_R1.fastq.gz
+Rep1P4,S4_R1.fastq.gz
+Rep2Pla,S5_R1.fastq.gz
+Rep2P0,S6_R1.fastq.gz
+Rep2P1,S7_R1.fastq.gz
+Rep2P4,S8_R1.fastq.gz
+Rep3Pla,S9_R1.fastq.gz
+Rep3P0,S10_R1.fastq.gz
+Rep3P1,S11_R1.fastq.gz
+Rep3P4,S12_R1.fastq.gz
+WTVirus,S13_R1.fastq.gz
+WTPla,S14_R1.fastq.gz
